@@ -1,23 +1,3 @@
-// modified version to read DS18B20 in bit banging
-//
-//  24 May 2014
-//  Daniel Perron
-//
-// Use At your own risk
-
-
-
-
-//
-//  How to access GPIO registers from C-code on the Raspberry-Pi
-//  Example program
-//  15-January-2012
-//  Dom and Gert
-//  Revised: 15-Feb-2013
-
-
-// Access from ARM Running Linux
-
 #define BCM2708_PERI_BASE        0x20000000
 #define GPIO_BASE                (BCM2708_PERI_BASE + 0x200000) /* GPIO controller */
 
@@ -49,12 +29,20 @@ volatile unsigned *gpio;
 
 #define GPIO_READ(g)  (*(gpio + 13) &= (1<<(g)))
 
+// ROM COMMANDS
+#define SEARCH_ROM						0xF0
+#define MATCH_ROM						0x55
+#define READ_ROM						0x33
+#define SKIP_ROM       					0xCC
+#define ALARM_SEARCH					0xEC
 
-#define DS18B20_SKIP_ROM       			0xCC
-#define DS18B20_CONVERT_T       		0x44
-#define DS18B20_READ_SCRATCHPAD         0xBE
-#define DS18B20_WRITE_SCRATCHPAD        0x4E
-#define DS18B20_COPY_SCRATCHPAD         0x48
+// FUNCTION COMMANDS
+#define CONVERT_T       		0x44
+#define READ_SCRATCHPAD         0xBE
+#define WRITE_SCRATCHPAD        0x4E
+#define COPY_SCRATCHPAD         0x48
+#define RECAL_E					0xB8
+#define READ_POWER_SUPPLY		0xB4
 
 unsigned char ScratchPad[9];
 double  temperature;
@@ -66,62 +54,76 @@ void setup_io();
 #define  DS_PIN  10
 #define DELAY1US  smalldelay();
 
-int  DoReset(void)
+
+void resetPulse(void){
+	INP_GPIO(DS_PIN);
+	OUT_GPIO(DS_PIN);
+	// pin low for 480 us
+	GPIO_CLR=1<<DS_PIN;
+	usleep(480);
+}
+
+
+int  initialize(void)
 {
  int loop;
 
-   INP_GPIO(DS_PIN);
+   INP_GPIO(DS_PIN);//sprobowac bez
+   usleep(1000);//sprobowac bez
 
+   resetPulse();
 
-   usleep(1000);
-
-   INP_GPIO(DS_PIN);
-   OUT_GPIO(DS_PIN);
-   
-   // pin low for 480 us
-   GPIO_CLR=1<<DS_PIN;
-   usleep(480);
    INP_GPIO(DS_PIN);
    usleep(60);
    if(GPIO_READ(DS_PIN)==0)
    {
-     usleep(380);
+     usleep(380);//Sprobowac dla 420
      return 1;
    }
  
   return 0;
 }
 
-void  smalldelay(void)
+
+void smalldelay(void)
 {
   int loop2;
    for(loop2=0;loop2<100;loop2++);
 }
 
-void WriteByte(unsigned char value)
+
+// Simple io functions
+void writeBit(int bit){
+	if(bit)
+	        {
+	           DELAY1US
+	           INP_GPIO(DS_PIN);
+	           usleep(60);
+
+	        }
+	        else
+	        {
+	           usleep(60);
+	           INP_GPIO(DS_PIN);
+	           usleep(1);
+	        }
+}
+
+void writeByte(unsigned char value)
 {
   unsigned char Mask=1;
-  int loop;
+  int i;
+  int bit;
 
-   for(loop=0;loop<8;loop++)
+   for(i=0;i<8;i++)
      {
        INP_GPIO(DS_PIN);
        OUT_GPIO(DS_PIN);
+       //pin low
        GPIO_CLR= 1 <<DS_PIN;
+       bit = (value & Mask)!=0;
+       writeBit(bit)
 
-       if((value & Mask)!=0)
-        {
-           DELAY1US
-            INP_GPIO(DS_PIN);
-           usleep(60);
-
-        }
-        else
-        {
-           usleep(60);
-           INP_GPIO(DS_PIN);
-           usleep(1);
-        }
       Mask*=2;
       usleep(60);
     }
@@ -130,7 +132,7 @@ void WriteByte(unsigned char value)
    usleep(100);
 }
 
-unsigned char ReadBit(void)
+int readBit(void)
 {
    INP_GPIO(DS_PIN);
    OUT_GPIO(DS_PIN);
@@ -147,31 +149,16 @@ unsigned char ReadBit(void)
    return 0;
 }
 
-unsigned char ReadByte(void)
+unsigned char readByte(void)
 {
 
    unsigned char Mask=1;
-   int loop;
-   unsigned  char data=0;
+   unsigned char data=0;
 
-  int loop2;
-
-
-   for(loop=0;loop<8;loop++)
+   int i;
+   for(i=0;i<8;i++)
      {
-       //  set output
-       INP_GPIO(DS_PIN);
-       OUT_GPIO(DS_PIN);
-       //  PIN LOW
-       GPIO_CLR= 1<<DS_PIN;
-       DELAY1US
-       //  set input
-       INP_GPIO(DS_PIN);
-       // Wait  2 us
-       DELAY1US
-       DELAY1US
-       DELAY1US
-       if(GPIO_READ(DS_PIN)!=0)
+       if (readBit())
        data |= Mask;
        Mask*=2;
        usleep(60);
@@ -180,17 +167,20 @@ unsigned char ReadByte(void)
     return data;
 }
 
+
+
+
 int ReadScratchPad(void)
 {
    int loop;
 
-    if(DoReset())
+    if(initialize())
      {
-       WriteByte(DS18B20_SKIP_ROM);
-       WriteByte(DS18B20_READ_SCRATCHPAD);
+       writeByte(SKIP_ROM);
+       writeByte(READ_SCRATCHPAD);
        for(loop=0;loop<9;loop++)
          {
-          ScratchPad[loop]=ReadByte();
+          ScratchPad[loop]=readByte();
         }
     return 1;
   }
@@ -240,60 +230,60 @@ int ReadSensor(void)
 
   for(RetryCount=0;RetryCount<3;RetryCount++)
   {
+	  printf("Try number %d", RetryCount);
 
-  if(!DoReset()) continue;
+	  if(!initialize()) continue;
 
-  // start a conversion
-  WriteByte(DS18B20_SKIP_ROM);
-  WriteByte(DS18B20_CONVERT_T);
-
-
-  maxloop=0;
-  // wait until ready
-   while(!ReadBit())
-   {
-    putchar('.');
-     maxloop++;
-    if(maxloop>100000) break;
-   }
-
-  if(maxloop>100000) continue;
+	  // start a conversion
+	  writeByte(SKIP_ROM);
+	  writeByte(CONVERT_T);
 
 
-  if(!ReadScratchPad()) continue;
+	  maxloop=0;
+	  // wait until ready
+	  while(!readBit())
+	  {
+		  putchar('.');
+		  maxloop++;
+		  if(maxloop>100000) break;
+	  }
 
-     for(loop=0;loop<9;loop++)
-       printf("%02X ",ScratchPad[loop]);
-     printf("\n");fflush(stdout);
-
-  // OK Check sum Check;
-  CRCByte= CalcCRC(ScratchPad,8);
-
-  if(CRCByte!=ScratchPad[8]) continue;
-
-  //Check Resolution
-   resolution=0;
-   switch(ScratchPad[4])
-   {
-
-     case  0x1f: resolution=9;break;
-     case  0x3f: resolution=10;break;
-     case  0x5f: resolution=11;break;
-     case  0x7f: resolution=12;break;
-   }
-
-   if(resolution==0) continue;
-    // Read Temperature
-
-    IntTemp.CHAR[0]=ScratchPad[0];
-    IntTemp.CHAR[1]=ScratchPad[1];
+	  if(maxloop>100000) continue;
 
 
-    temperature =  0.0625 * (double) IntTemp.SHORT;
-      
-      printf("%02d bits  Temperature: %6.2f +/- %f Celsius\n", resolution ,temperature, 0.0625 * (double)  (1<<(12 - resolution)));
+	  if(!ReadScratchPad()) continue;
 
-    return 1;
+		 for(loop=0;loop<9;loop++)
+			 printf("%02X ",ScratchPad[loop]);
+		 printf("\n");fflush(stdout);
+
+	  // OK Check sum Check;
+	  CRCByte= CalcCRC(ScratchPad,8);
+
+	  if(CRCByte!=ScratchPad[8]) continue;
+
+	  //Check Resolution
+	  resolution=0;
+	  switch(ScratchPad[4])
+	  {
+	  	  case  0x1f: resolution=9;break;
+	  	  case  0x3f: resolution=10;break;
+	  	  case  0x5f: resolution=11;break;
+	  	  case  0x7f: resolution=12;break;
+	  }
+
+	  if(resolution==0) continue;
+	  // Read Temperature
+
+	  IntTemp.CHAR[0]=ScratchPad[0];
+	  IntTemp.CHAR[1]=ScratchPad[1];
+
+
+	  temperature =  0.0625 * (double) IntTemp.SHORT;
+
+	  printf("%02d bits  Temperature: %6.2f +/- %f Celsius\n", resolution ,temperature, 0.0625 * (double)  (1<<(12 - resolution)));
+
+	  return 1;
    }
   return 0;
 }
@@ -304,44 +294,44 @@ int loop;
 
     // First reset device
 
-    DoReset();
+    initialize();
 
     usleep(1000);
     // Skip ROM command
-     WriteByte(DS18B20_SKIP_ROM);
+     writeByte(SKIP_ROM);
 
 
      // Write Scratch pad
 
-    WriteByte(DS18B20_WRITE_SCRATCHPAD);
+    writeByte(WRITE_SCRATCHPAD);
 
     // Write TH
 
-    WriteByte(TH);
+    writeByte(TH);
 
     // Write TL
 
-    WriteByte(TL);
+    writeByte(TL);
 
     // Write config
 
-    WriteByte(config);
+    writeByte(config);
 }
 
 void  CopyScratchPad(void)
 {
 
    // Reset device
-    DoReset();
+    initialize();
     usleep(1000);
 
    // Skip ROM Command
 
-    WriteByte(DS18B20_SKIP_ROM);
+    writeByte(SKIP_ROM);
 
    //  copy scratch pad
 
-    WriteByte(DS18B20_COPY_SCRATCHPAD);
+    writeByte(COPY_SCRATCHPAD);
     usleep(100000);
 }
 
