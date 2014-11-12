@@ -122,7 +122,7 @@ void writeByte(unsigned char value)
        //pin low
        GPIO_CLR= 1 <<DS_PIN;
        bit = (value & Mask)!=0;
-       writeBit(bit)
+       writeBit(bit);
 
       Mask*=2;
       usleep(60);
