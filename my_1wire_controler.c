@@ -153,6 +153,9 @@ inline int readBit(void)
    DELAY1US
    DELAY1US
    DELAY1US
+   DELAY1US   
+   DELAY1US
+   DELAY1US
    if(GPIO_READ(DS_PIN)!=0)
      return 1;
    return 0;
