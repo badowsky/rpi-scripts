@@ -57,7 +57,7 @@ void setup_io();
 #define  DS_PIN  10
 #define DELAY1US  smalldelay();
 
-void my_delay(unsigned long n){
+inline void my_delay(unsigned long n){
     usleep(n);
 }
 
@@ -147,7 +147,7 @@ inline int readBit(void)
     OUT_GPIO(DS_PIN);
     // PIN LOW
     GPIO_CLR= 1 << DS_PIN;
-    my_delay(1);
+    DELAY1US;
     // set INPUT
     INP_GPIO(DS_PIN);
     my_delay(15);
@@ -169,7 +169,7 @@ unsigned char readByte(void)
        if (readBit())
        data |= Mask;
        Mask*=2;
-       my_delay(45);
+       my_delay(44);
       }
 
     return data;
