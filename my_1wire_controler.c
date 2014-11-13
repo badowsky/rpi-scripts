@@ -228,7 +228,7 @@ int adressDevice(char rom[8]){
         for(i=0;i<8;i++){
             writeByte(rom[i]);
         }
-        printf("Device adressed.")
+        printf("Device adressed.");
         return 1; 
     }
     return 0;
@@ -244,11 +244,11 @@ int letConvertTemp(char rom[8]){
             i++;
 		    putchar('.');
             if(i>100000) {
-                printf("Conversion timeout.")
+                printf("Conversion timeout.");
                 return 0;
             }
 	    }
-        printf("Temperature converted.")
+        printf("Temperature converted.");
         return 1;
     }
     return 0;
@@ -288,7 +288,7 @@ double convertTemp(unsigned char lsb, unsigned char msb){
 }
 
 double getTemperature(char rom[8]){
-
+    unsigned char CRCByte;
     if(!letConvertTemp(rom)){
         return 0.0;
     }
@@ -305,22 +305,22 @@ double getTemperature(char rom[8]){
     //do smth with scratch_pad
     int i;
     for(i=0;i<9;i++){
-	    printf("ScratchPad[%d] = %02X \n", i, *(scratch_pad + i);
+	    printf("ScratchPad[%d] = %02X \n", i, *(scratch_pad + i));
     }
     fflush(stdout);
-	//Check Resolution
-	resolution=0;
-	switch(*(scratch_pad+4))
-	{
-	    case  0x1f: resolution=9;break;
+    //Check Resolution
+    resolution=0;
+    switch(*(scratch_pad+4))
+    {
+        case  0x1f: resolution=9;break;
         case  0x3f: resolution=10;break;
         case  0x5f: resolution=11;break;
         case  0x7f: resolution=12;break;
-	}
+    }
 
-	if(resolution==0){
-        printf("Error reading resolution.");
-        return 66.6;
+    if(resolution==0){
+    printf("Error reading resolution.");
+    return 66.6;
     }
     union {
     short SHORT;
