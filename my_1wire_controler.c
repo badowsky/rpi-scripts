@@ -234,12 +234,16 @@ int adressDevice(char rom[8]){
     return 0;
 }
 void readDeviceAdress(void){
+    unsigned char addres[8];
+    int i;
     if (initialize()){
         writeByte(READ_ROM);
-        int i;
         for(i=0;i<8;i++){
-            printf("%x ", readByte());
+            addres[i] = readByte();
         }
+    }
+    for(i=0;i<8;i++){
+        printf("%x", addres[i]);
     }
 }
 
