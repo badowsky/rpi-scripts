@@ -58,7 +58,31 @@ void setup_io();
 #define DELAY1US  smalldelay();
 
 inline void my_delay(unsigned long n){
-    usleep(n);
+    //usleep(n);
+    // busy wait for 10 microseconds
+struct timespec ttime,curtime;
+
+// get the time
+clock_gettime(CLOCK_REALTIME,&ttime);
+
+// clear the nanoseconds and keep the seconds in order not to overflow the nanoseconds
+ttime.tv_nsec = 0;
+
+// set it back
+clock_settime(CLOCK_REALTIME,&ttime);
+
+// get the time again 
+clock_gettime(CLOCK_REALTIME,&ttime);
+
+// increase the nano seconds by 10*1000
+ttime.tv_nsec += n;
+
+// loop
+while(true){
+  clock_gettime(CLOCK_REALTIME,&curtime);
+  if (curtime.tv_nsec > ttime.tv_nsec)
+    break;
+}
 }
 
 void resetPulse(void){
