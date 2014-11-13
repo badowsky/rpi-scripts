@@ -38,10 +38,10 @@ volatile unsigned *gpio;
 
 // FUNCTION COMMANDS
 #define CONVERT_T       		0x44
-#define READ_SCRATCHPAD         0xBE
-#define WRITE_SCRATCHPAD        0x4E
-#define COPY_SCRATCHPAD         0x48
-#define RECAL_E					0xB8
+#define READ_SCRATCHPAD                 0xBE
+#define WRITE_SCRATCHPAD                0x4E
+#define COPY_SCRATCHPAD                 0x48
+#define RECAL_E				0xB8
 #define READ_POWER_SUPPLY		0xB4
 
 #define THERM_IN                { 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77 }
@@ -222,7 +222,7 @@ unsigned char  CalcCRC(unsigned char * data, unsigned char  byteSize)
 }
 
 int adressDevice(char rom[8]){
-    if (initialize){
+    if (initialize()){
         writeByte(MATCH_ROM);
         int i;
         for(i=0;i<8;i++){
@@ -234,7 +234,7 @@ int adressDevice(char rom[8]){
     return 0;
 }
 void readDeviceAdress(void){
-    if (initialize){
+    if (initialize()){
         writeByte(READ_ROM);
         int i;
         for(i=0;i<8;i++){
