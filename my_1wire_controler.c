@@ -78,7 +78,7 @@ clock_gettime(CLOCK_REALTIME,&ttime);
 ttime.tv_nsec += n;
 
 // loop
-while(true){
+while(1){
   clock_gettime(CLOCK_REALTIME,&curtime);
   if (curtime.tv_nsec > ttime.tv_nsec)
     break;
