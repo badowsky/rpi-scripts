@@ -480,35 +480,35 @@ int main(int argc, char **argv)
   // Set up gpi pointer for direct register access
   setup_io();
   //getTemperature();
-  //readDeviceAdress();
+  readDeviceAdress();
   
-  if(ReadSensor())
-    {
-     printf("DS18B20 Resolution (9,10,11 or 12) ?");fflush(stdout);
-
-    config=0;
-    if(scanf("%d",&resolution)==1)
-      {
-        switch(resolution)
-         {
-           case 9:  config=0x1f;break;
-           case 10: config=0x3f;break;
-           case 11: config=0x5f;break;
-           case 12: config=0x7f;break;
-         }
-      }
-
-    if(config==0)
-         printf("Invalid Value! Nothing done.\n");
-    else
-    {
-      printf("Try to set %d bits  config=%2X\n",resolution,config);
-      usleep(1000);
-      WriteScratchPad(ScratchPad[2],ScratchPad[3],config);
-      usleep(1000);
-      CopyScratchPad();
-    }
-  }
+//  if(ReadSensor())
+//    {
+//     printf("DS18B20 Resolution (9,10,11 or 12) ?");fflush(stdout);
+//
+//    config=0;
+//    if(scanf("%d",&resolution)==1)
+//      {
+//        switch(resolution)
+//         {
+//           case 9:  config=0x1f;break;
+//           case 10: config=0x3f;break;
+//           case 11: config=0x5f;break;
+//           case 12: config=0x7f;break;
+//         }
+//      }
+//
+//    if(config==0)
+//         printf("Invalid Value! Nothing done.\n");
+//    else
+//    {
+//      printf("Try to set %d bits  config=%2X\n",resolution,config);
+//      usleep(1000);
+//      WriteScratchPad(ScratchPad[2],ScratchPad[3],config);
+//      usleep(1000);
+//      CopyScratchPad();
+//    }
+//  }
 
   return 0;
 
