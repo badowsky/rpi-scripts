@@ -45,7 +45,8 @@ volatile unsigned *gpio;
 #define READ_POWER_SUPPLY		0xB4
 
 #define THERM_IN                { 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77 }
-#define THERM_OUT               { 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77 }
+#define THERM_OUT               { 0x03, 0x2f, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77 }
+032f098e
 
 unsigned char ScratchPad[9];
 double  temperature;
@@ -233,6 +234,18 @@ int adressDevice(char rom[8]){
     }
     return 0;
 }
+void readDeviceAdress(void){
+    if (initialize){
+        writeByte(READ_ROM);
+        int i;
+        for(i=0;i<8;i++){
+            printf("%x ", readByte());
+        }
+        printf("Device adressed.\n");
+        return 1; 
+    }
+    return 0;
+}
 
 int letConvertTemp(char rom[8]){
     if(adressDevice(rom)){
@@ -297,7 +310,7 @@ double getTemperature(char rom[8]){
     //CRC check
     CRCByte = CalcCRC(scratch_pad, 8);
 
-	if(CRCByte!=*(scratch_pad+8)){
+    if(CRCByte!=*(scratch_pad+8)){
         printf("CRC not match.\n");
         return 6.66;
     }
@@ -466,7 +479,8 @@ int main(int argc, char **argv)
   int config;
   // Set up gpi pointer for direct register access
   setup_io();
-  getTemperature();
+  //getTemperature();
+  readDeviceAdress();
 //  if(ReadSensor())
 //    {
 //     printf("DS18B20 Resolution (9,10,11 or 12) ?");fflush(stdout);
