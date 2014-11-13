@@ -114,7 +114,7 @@ inline void writeBit(int bit){
 	        {
 	           usleep(60);
 	           INP_GPIO(DS_PIN);
-	           my_delay(1);
+	           DELAY1US;
 	        }
 }
 
@@ -150,9 +150,8 @@ inline int readBit(void)
     my_delay(1);
     // set INPUT
     INP_GPIO(DS_PIN);
-    my_delay(10);
+    my_delay(15);
     if(GPIO_READ(DS_PIN)!=0){
-        my_delay(45);
         return 1;
     }
     return 0;
@@ -170,7 +169,7 @@ unsigned char readByte(void)
        if (readBit())
        data |= Mask;
        Mask*=2;
-       my_delay(1);
+       my_delay(45);
       }
 
     return data;
