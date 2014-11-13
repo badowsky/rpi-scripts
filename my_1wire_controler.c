@@ -3,12 +3,7 @@
 
 #include <linux/module.h>
 #include <linux/kernel.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <fcntl.h>
-#include <sys/mman.h>
-#include <unistd.h>
-#include <time.h>
+
 
 #define PAGE_SIZE (4*1024)
 #define BLOCK_SIZE (4*1024)
