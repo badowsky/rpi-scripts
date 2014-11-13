@@ -147,11 +147,10 @@ inline int readBit(void)
    OUT_GPIO(DS_PIN);
    // PIN LOW
    GPIO_CLR= 1 << DS_PIN;
-   DELAY1US
+   my_delay(1);
    // set INPUT
    INP_GPIO(DS_PIN);
-   DELAY1US
-   DELAY1US
+   my_delay(10);
    if(GPIO_READ(DS_PIN)!=0)
      return 1;
    return 0;
