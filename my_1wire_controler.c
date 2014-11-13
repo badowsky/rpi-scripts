@@ -57,6 +57,9 @@ void setup_io();
 #define  DS_PIN  10
 #define DELAY1US  smalldelay();
 
+void my_delay(unsigned long n){
+    usleep(n);
+}
 
 void resetPulse(void){
 	INP_GPIO(DS_PIN);
@@ -96,9 +99,7 @@ void smalldelay(void)
    for(loop2=0;loop2<100;loop2++);
 } 
 
-void my_delay(unsigned long n){
-    usleep(n);
-}
+
 
 // Simple io functions
 void writeBit(int bit){
