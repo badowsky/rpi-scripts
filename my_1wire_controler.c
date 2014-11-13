@@ -44,6 +44,9 @@ volatile unsigned *gpio;
 #define RECAL_E					0xB8
 #define READ_POWER_SUPPLY		0xB4
 
+#define THERM_IN                { 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77 }
+#define THERM_OUT               { 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77 }
+
 unsigned char ScratchPad[9];
 double  temperature;
 int   resolution;
@@ -60,28 +63,30 @@ void resetPulse(void){
 	OUT_GPIO(DS_PIN);
 	// pin low for 480 us
 	GPIO_CLR=1<<DS_PIN;
-	usleep(480);
+	my_delay(480);
 }
 
 
 int  initialize(void)
 {
- int loop;
+    printf("Trying to initialize.");
+    int loop;
 
-   INP_GPIO(DS_PIN);//sprobowac bez
-   usleep(1000);//sprobowac bez
+    INP_GPIO(DS_PIN);//sprobowac bez
+    my_delay(1000);//sprobowac bez
 
-   resetPulse();
+    resetPulse();
 
-   INP_GPIO(DS_PIN);
-   usleep(60);
-   if(GPIO_READ(DS_PIN)==0)
-   {
-     usleep(380);//Sprobowac dla 420
-     return 1;
-   }
- 
-  return 0;
+    INP_GPIO(DS_PIN);
+    my_delay(60);
+    if(GPIO_READ(DS_PIN)==0)
+    {
+        my_delay(380);//Sprobowac dla 420
+        printf("Initialize succesfull.");
+        return 1;
+    }
+    printf("Initialize failed.");
+    return 0;
 }
 
 
@@ -89,8 +94,11 @@ void smalldelay(void)
 {
   int loop2;
    for(loop2=0;loop2<100;loop2++);
-}
+} 
 
+void my_delay(unsigned long n){
+    usleep(n);
+}
 
 // Simple io functions
 void writeBit(int bit){
@@ -98,14 +106,14 @@ void writeBit(int bit){
 	        {
 	           DELAY1US
 	           INP_GPIO(DS_PIN);
-	           usleep(60);
+	           my_delay(60);
 
 	        }
 	        else
 	        {
 	           usleep(60);
 	           INP_GPIO(DS_PIN);
-	           usleep(1);
+	           my_delay(1);
 	        }
 }
 
@@ -125,11 +133,11 @@ void writeByte(unsigned char value)
        writeBit(bit);
 
       Mask*=2;
-      usleep(60);
+      my_delay(60);
     }
 
 
-   usleep(100);
+   my_delay(100);
 }
 
 int readBit(void)
@@ -161,7 +169,7 @@ unsigned char readByte(void)
        if (readBit())
        data |= Mask;
        Mask*=2;
-       usleep(60);
+       my_delay(60);
       }
 
     return data;
@@ -172,15 +180,14 @@ unsigned char readByte(void)
 
 int ReadScratchPad(void)
 {
-   int loop;
-
     if(initialize())
      {
        writeByte(SKIP_ROM);
        writeByte(READ_SCRATCHPAD);
-       for(loop=0;loop<9;loop++)
+       int i;
+       for(i=0;i<9;i++)
          {
-          ScratchPad[loop]=readByte();
+          ScratchPad[i]=readByte();
         }
     return 1;
   }
@@ -190,13 +197,15 @@ int ReadScratchPad(void)
 unsigned char  CalcCRC(unsigned char * data, unsigned char  byteSize)
 {
    unsigned char  shift_register = 0;
-   unsigned char  loop,loop2;
    char  DataByte;
 
-   for(loop = 0; loop < byteSize; loop++)
+   unsigned char i;
+   for(i = 0; i < byteSize; i++)
    {
-      DataByte = *(data + loop);
-      for(loop2 = 0; loop2 < 8; loop2++)
+      DataByte = *(data + i);
+
+      unsigned char j;
+      for(j = 0; j < 8; j++)
       {
          if((shift_register ^ DataByte)& 1)
          {
@@ -209,6 +218,121 @@ unsigned char  CalcCRC(unsigned char * data, unsigned char  byteSize)
       }
    }
    return shift_register;
+}
+
+int adressDevice(char rom[8]){
+    if (initialize){
+        writeByte(MATCH_ROM);
+        int i;
+        for(i=0;i<8;i++){
+            writeByte(rom[i]);
+        }
+        printf("Device adressed.")
+        return 1; 
+    }
+    return 0;
+}
+
+int letConvertTemp(char rom[8]){
+    if(adressDevice(rom)){
+        writeByte(CONVERT_T);
+        printf("Converting temperature");
+        int i = 0;
+        while(!readBit())
+	    {
+            i++;
+		    putchar('.');
+            if(i>100000) {
+                printf("Conversion timeout.")
+                return 0;
+            }
+	    }
+        printf("Temperature converted.")
+        return 1;
+    }
+    return 0;
+}
+
+char* readScratchPad(char rom[8]){
+    char  *scratch_pad = malloc(9);
+    if(!scratch_pad)
+        return NULL;
+
+    if(adressDevice(rom)){
+        writeByte(READ_SCRATCHPAD);
+        int i;
+        for(i=0;i<9;i++)
+        {
+            scratch_pad[i]=readByte();
+        }
+        return scratch_pad;
+    }
+    return NULL;
+}
+
+double convertTemp(unsigned char lsb, unsigned char msb){
+
+    unsigned short reading = lsb + (msb << 8);
+    unsigned short inv = reading & 0xf000;
+    double val = 0.0;
+    printf("Converting temperature from:\nMSB LSB: %x%x \n", msb, lsb);
+    if (inv == 0xf000){
+        reading = (reading ^ 0xffff) + 1;
+        val = -(double) reading / 16.0;
+    }else{
+    	val = (double) reading / 16.0;
+    }
+
+    return val;
+}
+
+double getTemperature(char rom[8]){
+
+    if(!letConvertTemp(rom)){
+        return 0.0;
+    }
+
+    char *scratch_pad = readScratchPad(rom);
+    //CRC check
+    CRCByte = CalcCRC(scratch_pad, 8);
+
+	if(CRCByte!=*(scratch_pad+8)){
+        printf("CRC not match.");
+        return 6.66;
+    }
+    //CRC check end
+    //do smth with scratch_pad
+    int i;
+    for(i=0;i<9;i++){
+	    printf("ScratchPad[%d] = %02X \n", i, *(scratch_pad + i);
+    }
+    fflush(stdout);
+	//Check Resolution
+	resolution=0;
+	switch(*(scratch_pad+4))
+	{
+	    case  0x1f: resolution=9;break;
+        case  0x3f: resolution=10;break;
+        case  0x5f: resolution=11;break;
+        case  0x7f: resolution=12;break;
+	}
+
+	if(resolution==0){
+        printf("Error reading resolution.");
+        return 66.6;
+    }
+    union {
+    short SHORT;
+    unsigned char CHAR[2];
+    }intTemp;
+    
+    intTemp.CHAR[0]=*(scratch_pad+0);
+    intTemp.CHAR[1]=*(scratch_pad+1);
+    //do smth with scratch_pad
+    free(scratch_pad);
+
+    double temp = convertTemp(intTemp.CHAR[0], intTemp.CHAR[1]);
+    return temp;
 }
 
 int ReadSensor(void)
@@ -296,7 +420,7 @@ int loop;
 
     initialize();
 
-    usleep(1000);
+    my_delay(1000);
     // Skip ROM command
      writeByte(SKIP_ROM);
 
@@ -323,7 +447,7 @@ void  CopyScratchPad(void)
 
    // Reset device
     initialize();
-    usleep(1000);
+    my_delay(1000);
 
    // Skip ROM Command
 
@@ -332,7 +456,7 @@ void  CopyScratchPad(void)
    //  copy scratch pad
 
     writeByte(COPY_SCRATCHPAD);
-    usleep(100000);
+    my_delay(100000);
 }
 
 int main(int argc, char **argv)
