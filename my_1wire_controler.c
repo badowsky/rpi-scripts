@@ -1,7 +1,8 @@
 #define BCM2708_PERI_BASE        0x20000000
 #define GPIO_BASE                (BCM2708_PERI_BASE + 0x200000) /* GPIO controller */
 
-
+#include <linux/module.h>
+#include <linux/kernel.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
@@ -57,32 +58,12 @@ void setup_io();
 #define  DS_PIN  10
 #define DELAY1US  smalldelay();
 
+
+
+
+
 inline void my_delay(unsigned long n){
-    //usleep(n);
-    // busy wait for 10 microseconds
-struct timespec ttime,curtime;
-
-// get the time
-clock_gettime(CLOCK_REALTIME,&ttime);
-
-// clear the nanoseconds and keep the seconds in order not to overflow the nanoseconds
-ttime.tv_nsec = 0;
-
-// set it back
-clock_settime(CLOCK_REALTIME,&ttime);
-
-// get the time again 
-clock_gettime(CLOCK_REALTIME,&ttime);
-
-// increase the nano seconds by 10*1000
-ttime.tv_nsec += n;
-
-// loop
-while(1){
-  clock_gettime(CLOCK_REALTIME,&curtime);
-  if (curtime.tv_nsec > ttime.tv_nsec)
-    break;
-}
+    usleep(n);
 }
 
 void resetPulse(void){
@@ -496,46 +477,46 @@ void  CopyScratchPad(void)
     my_delay(100000);
 }
 
-int main(int argc, char **argv)
-{
-  int loop;
-  int config;
-  // Set up gpi pointer for direct register access
-  setup_io();
-  //getTemperature();
-  readDeviceAdress();
-  
-//  if(ReadSensor())
-//    {
-//     printf("DS18B20 Resolution (9,10,11 or 12) ?");fflush(stdout);
+//int main(int argc, char **argv)
+//{
+//  int loop;
+//  int config;
+//  // Set up gpi pointer for direct register access
+//  setup_io();
+//  //getTemperature();
+//  readDeviceAdress();
+//  
+////  if(ReadSensor())
+////    {
+////     printf("DS18B20 Resolution (9,10,11 or 12) ?");fflush(stdout);
+////
+////    config=0;
+////    if(scanf("%d",&resolution)==1)
+////      {
+////        switch(resolution)
+////         {
+////           case 9:  config=0x1f;break;
+////           case 10: config=0x3f;break;
+////           case 11: config=0x5f;break;
+////           case 12: config=0x7f;break;
+////         }
+////      }
+////
+////    if(config==0)
+////         printf("Invalid Value! Nothing done.\n");
+////    else
+////    {
+////      printf("Try to set %d bits  config=%2X\n",resolution,config);
+////      usleep(1000);
+////      WriteScratchPad(ScratchPad[2],ScratchPad[3],config);
+////      usleep(1000);
+////      CopyScratchPad();
+////    }
+////  }
 //
-//    config=0;
-//    if(scanf("%d",&resolution)==1)
-//      {
-//        switch(resolution)
-//         {
-//           case 9:  config=0x1f;break;
-//           case 10: config=0x3f;break;
-//           case 11: config=0x5f;break;
-//           case 12: config=0x7f;break;
-//         }
-//      }
+//  return 0;
 //
-//    if(config==0)
-//         printf("Invalid Value! Nothing done.\n");
-//    else
-//    {
-//      printf("Try to set %d bits  config=%2X\n",resolution,config);
-//      usleep(1000);
-//      WriteScratchPad(ScratchPad[2],ScratchPad[3],config);
-//      usleep(1000);
-//      CopyScratchPad();
-//    }
-//  }
-
-  return 0;
-
-} // main
+//} // main
 
 
 //
@@ -571,3 +552,15 @@ void setup_io()
 
 
 } // setup_io
+
+int hello_init(void)
+{
+    printk(KERN_INFO "Hello World :)\n");
+    return 0;
+}
+void hello_exit(void)
+{
+    printk(KERN_INFO "Goodbye World!\n");
+}
+module_init(hello_init);
+module_exit(hello_exit);
