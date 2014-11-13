@@ -134,7 +134,7 @@ void writeByte(unsigned char value)
        writeBit(bit);
 
       Mask*=2;
-      my_delay(1);
+      my_delay(60);
     }
 
 
@@ -170,7 +170,7 @@ unsigned char readByte(void)
        if (readBit())
        data |= Mask;
        Mask*=2;
-       my_delay(60);
+       my_delay(1);
       }
 
     return data;
