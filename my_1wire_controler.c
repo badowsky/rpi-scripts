@@ -481,6 +481,7 @@ int main(int argc, char **argv)
   setup_io();
   //getTemperature();
   readDeviceAdress();
+  
 //  if(ReadSensor())
 //    {
 //     printf("DS18B20 Resolution (9,10,11 or 12) ?");fflush(stdout);
