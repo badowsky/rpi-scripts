@@ -102,7 +102,7 @@ void smalldelay(void)
 
 
 // Simple io functions
-void writeBit(int bit){
+inline void writeBit(int bit){
 	if(bit)
 	        {
 	           DELAY1US
@@ -141,7 +141,7 @@ void writeByte(unsigned char value)
    my_delay(100);
 }
 
-int readBit(void)
+inline int readBit(void)
 {
    INP_GPIO(DS_PIN);
    OUT_GPIO(DS_PIN);
