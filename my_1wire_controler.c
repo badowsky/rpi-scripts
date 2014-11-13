@@ -72,7 +72,7 @@ void resetPulse(void){
 
 int  initialize(void)
 {
-    printf("Trying to initialize.");
+    printf("Trying to initialize.\n");
     int loop;
 
     INP_GPIO(DS_PIN);//sprobowac bez
@@ -85,10 +85,10 @@ int  initialize(void)
     if(GPIO_READ(DS_PIN)==0)
     {
         my_delay(380);//Sprobowac dla 420
-        printf("Initialize succesfull.");
+        printf("Initialize succesfull.\n");
         return 1;
     }
-    printf("Initialize failed.");
+    printf("Initialize failed.\n");
     return 0;
 }
 
@@ -228,7 +228,7 @@ int adressDevice(char rom[8]){
         for(i=0;i<8;i++){
             writeByte(rom[i]);
         }
-        printf("Device adressed.");
+        printf("Device adressed.\n");
         return 1; 
     }
     return 0;
@@ -244,11 +244,11 @@ int letConvertTemp(char rom[8]){
             i++;
 		    putchar('.');
             if(i>100000) {
-                printf("Conversion timeout.");
+                printf("\nConversion timeout.\n");
                 return 0;
             }
 	    }
-        printf("Temperature converted.");
+        printf("\nTemperature converted.\n");
         return 1;
     }
     return 0;
@@ -298,7 +298,7 @@ double getTemperature(char rom[8]){
     CRCByte = CalcCRC(scratch_pad, 8);
 
 	if(CRCByte!=*(scratch_pad+8)){
-        printf("CRC not match.");
+        printf("CRC not match.\n");
         return 6.66;
     }
     //CRC check end
@@ -319,7 +319,7 @@ double getTemperature(char rom[8]){
     }
 
     if(resolution==0){
-    printf("Error reading resolution.");
+    printf("Error reading resolution.\n");
     return 66.6;
     }
     union {
@@ -466,33 +466,34 @@ int main(int argc, char **argv)
   int config;
   // Set up gpi pointer for direct register access
   setup_io();
-  if(ReadSensor())
-    {
-     printf("DS18B20 Resolution (9,10,11 or 12) ?");fflush(stdout);
-
-    config=0;
-    if(scanf("%d",&resolution)==1)
-      {
-        switch(resolution)
-         {
-           case 9:  config=0x1f;break;
-           case 10: config=0x3f;break;
-           case 11: config=0x5f;break;
-           case 12: config=0x7f;break;
-         }
-      }
-
-    if(config==0)
-         printf("Invalid Value! Nothing done.\n");
-    else
-    {
-      printf("Try to set %d bits  config=%2X\n",resolution,config);
-      usleep(1000);
-      WriteScratchPad(ScratchPad[2],ScratchPad[3],config);
-      usleep(1000);
-      CopyScratchPad();
-    }
-  }
+  getTemperature();
+//  if(ReadSensor())
+//    {
+//     printf("DS18B20 Resolution (9,10,11 or 12) ?");fflush(stdout);
+//
+//    config=0;
+//    if(scanf("%d",&resolution)==1)
+//      {
+//        switch(resolution)
+//         {
+//           case 9:  config=0x1f;break;
+//           case 10: config=0x3f;break;
+//           case 11: config=0x5f;break;
+//           case 12: config=0x7f;break;
+//         }
+//      }
+//
+//    if(config==0)
+//         printf("Invalid Value! Nothing done.\n");
+//    else
+//    {
+//      printf("Try to set %d bits  config=%2X\n",resolution,config);
+//      usleep(1000);
+//      WriteScratchPad(ScratchPad[2],ScratchPad[3],config);
+//      usleep(1000);
+//      CopyScratchPad();
+//    }
+//  }
 
   return 0;
 
