@@ -134,7 +134,7 @@ void writeByte(unsigned char value)
        writeBit(bit);
 
       Mask*=2;
-      my_delay(60);
+      my_delay(1);
     }
 
 
@@ -143,17 +143,19 @@ void writeByte(unsigned char value)
 
 inline int readBit(void)
 {
-   INP_GPIO(DS_PIN);
-   OUT_GPIO(DS_PIN);
-   // PIN LOW
-   GPIO_CLR= 1 << DS_PIN;
-   my_delay(1);
-   // set INPUT
-   INP_GPIO(DS_PIN);
-   my_delay(10);
-   if(GPIO_READ(DS_PIN)!=0)
-     return 1;
-   return 0;
+    INP_GPIO(DS_PIN);
+    OUT_GPIO(DS_PIN);
+    // PIN LOW
+    GPIO_CLR= 1 << DS_PIN;
+    my_delay(1);
+    // set INPUT
+    INP_GPIO(DS_PIN);
+    my_delay(10);
+    if(GPIO_READ(DS_PIN)!=0){
+        my_delay(45);
+        return 1;
+    }
+    return 0;
 }
 
 unsigned char readByte(void)
