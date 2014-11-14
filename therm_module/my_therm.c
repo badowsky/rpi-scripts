@@ -27,29 +27,31 @@
 #define SET_GPIO_LOW(g)     gpio_set_value(g, 0)
 #define GPIO_READ(g)        gpio_get_value(g)
 
+// ROM COMMANDS
+#define SEARCH_ROM			0xF0
+#define MATCH_ROM			0x55
+#define READ_ROM			0x33
+#define SKIP_ROM       			0xCC
+#define ALARM_SEARCH			0xEC
+
+// FUNCTION COMMANDS
+#define CONVERT_T       		0x44
+#define READ_SCRATCHPAD                 0xBE
+#define WRITE_SCRATCHPAD                0x4E
+#define COPY_SCRATCHPAD                 0x48
+#define RECAL_E				0xB8
+#define READ_POWER_SUPPLY		0xB4
+
 #define DS_PIN	10
 
-/*
-* Timer function called periodically
-*/
-static void blink_timer_func(unsigned long data)
-{
-    printk(KERN_INFO "%s\n", __func__);
-    gpio_set_value(LED1, data);
-    /* schedule next execution */
-    blink_timer.data = !data; // makes the LED toggle
-    blink_timer.expires = jiffies + (1*HZ); // 1 sec.
-    add_timer(&blink_timer);
-}
-
 void my_delay(int n){
-    
+    usleep(n);
 }
 void resetPulse(void){
     printk(KERN_INFO "Sending reset pulse.");
 	OUT_GPIO(DS_PIN);
 	// pin low for 480 us
-	SET_GPIO_LOW(DS_PIN)
+	SET_GPIO_LOW(DS_PIN);
 	my_delay(480);
     INP_GPIO(DS_PIN);
     my_delay(60);
@@ -58,7 +60,6 @@ void resetPulse(void){
 int  initialize(void)
 {
     printk(KERN_INFO "Trying to initialize.");
-    int loop;
 
     resetPulse();
     if(GPIO_READ(DS_PIN)==0)
