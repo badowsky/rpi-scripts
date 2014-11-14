@@ -43,13 +43,13 @@ static void blink_timer_func(unsigned long data)
 }
 
 void my_delay(int n){
-    
+	usleep(n);    
 }
 void resetPulse(void){
     printk(KERN_INFO "Sending reset pulse.");
 	OUT_GPIO(DS_PIN);
 	// pin low for 480 us
-	SET_GPIO_LOW(DS_PIN)
+	SET_GPIO_LOW(DS_PIN);
 	my_delay(480);
     INP_GPIO(DS_PIN);
     my_delay(60);
@@ -58,7 +58,6 @@ void resetPulse(void){
 int  initialize(void)
 {
     printk(KERN_INFO "Trying to initialize.");
-    int loop;
 
     resetPulse();
     if(GPIO_READ(DS_PIN)==0)
