@@ -182,6 +182,7 @@ static void __exit gpiomod_exit(void)
     // unregister GPIO
     gpio_free(DS_PIN);
 }
+
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Stefan Wendler");
 MODULE_DESCRIPTION("Basic kernel module using a timer and GPIOs to flash a LED.");
