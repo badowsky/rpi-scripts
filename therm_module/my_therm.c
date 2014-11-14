@@ -21,14 +21,14 @@
 #include <linux/init.h>
 #include <linux/gpio.h>
 
-#define INP_GPIO(g)     gpio_direction_input(g)
-#define OUT_GPIO(g)  gpio_direction_output(g, 1)
-#define SET_GPIO_HIGH(g)  gpio_set_value(g, 1)
-#define SET_GPIO_LOW(g)  gpio_set_value(g, 0)
-#define GPIO_READ(g)     gpio_get_value(g)
+#define INP_GPIO(g)         gpio_direction_input(g)
+#define OUT_GPIO(g)         gpio_direction_output(g, 1)
+#define SET_GPIO_HIGH(g)    gpio_set_value(g, 1)
+#define SET_GPIO_LOW(g)     gpio_set_value(g, 0)
+#define GPIO_READ(g)        gpio_get_value(g)
 
 #define DS_PIN	4
-static struct timer_list blink_timer;
+
 /*
 * Timer function called periodically
 */
@@ -64,10 +64,10 @@ int  initialize(void)
     if(GPIO_READ(DS_PIN)==0)
     {   
         my_delay(300);//Sprobowac dla 420
-        printf("Initialize succesfull.\n");
+        printk(KERN_INFO "Initialize succesfull.\n");
         return 1;
     }
-    printf("Initialize failed.\n");
+    printk(KERN_INFO "Initialize failed.\n");
     return 0;
 }
 
