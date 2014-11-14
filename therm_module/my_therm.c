@@ -46,8 +46,8 @@
 
 #define DS_PIN	10
 
-void my_delay(int n){
-    usleep(n);
+inline void my_delay(int n){
+    udelay(n);
 }
 void resetPulse(void){
     printk(KERN_INFO "Sending reset pulse.");
