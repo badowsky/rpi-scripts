@@ -54,9 +54,8 @@ void resetPulse(void){
 	OUT_GPIO(DS_PIN);
 	// pin low for 480 us
 	SET_GPIO_LOW(DS_PIN);
-	my_delay(480);
+	my_delay(500);
     INP_GPIO(DS_PIN);
-    my_delay(60);
 }
 
 int  initialize(void)
@@ -64,6 +63,7 @@ int  initialize(void)
     printk(KERN_INFO "Trying to initialize.");
 
     resetPulse();
+    my_delay(60);
     if(GPIO_READ(DS_PIN)==0)
     {   
         my_delay(300);//Sprobowac dla 420
