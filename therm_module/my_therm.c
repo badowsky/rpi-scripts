@@ -27,7 +27,7 @@
 #define SET_GPIO_LOW(g)     gpio_set_value(g, 0)
 #define GPIO_READ(g)        gpio_get_value(g)
 
-#define DS_PIN	4
+#define DS_PIN	10
 
 /*
 * Timer function called periodically
