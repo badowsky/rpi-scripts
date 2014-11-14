@@ -55,7 +55,7 @@ void resetPulse(void){
 	// pin low for 480 us
 	SET_GPIO_LOW(DS_PIN);
 	my_delay(500);
-    SET_GPIO_HIGH(DS_PIN);
+    //SET_GPIO_HIGH(DS_PIN);
     INP_GPIO(DS_PIN);
 }
 
