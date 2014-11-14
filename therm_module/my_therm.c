@@ -20,6 +20,8 @@
 #include <linux/time.h>
 #include <linux/init.h>
 #include <linux/gpio.h>
+#include <linux/delay.h>
+
 
 #define INP_GPIO(g)         gpio_direction_input(g)
 #define OUT_GPIO(g)         gpio_direction_output(g, 1)
