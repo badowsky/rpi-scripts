@@ -5,12 +5,12 @@
 #include <linux/delay.h>
 #include"my_char_dev.h"
 
-#define PIN_RS
-#define PIN_E
-#define PIN_D4
-#define PIN_D5
-#define PIN_D6
-#define PIN_D7
+#define PIN_RS              27
+#define PIN_E               17
+#define PIN_D4              11
+#define PIN_D5              9
+#define PIN_D6              10
+#define PIN_D7              22
 
 #define CMD_CLEAR           0x01
 #define SHIFT_LEFT          0x18
