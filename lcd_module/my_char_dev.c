@@ -25,8 +25,7 @@
 
 #define INP_GPIO(g)         gpio_direction_input(g)
 #define OUT_GPIO(g, value)  gpio_direction_output(g, value)
-#define SET_GPIO_HIGH(g)    gpio_set_value(g, 1)
-#define SET_GPIO_LOW(g)     gpio_set_value(g, 0)
+#define SET_GPIO(g, value)  gpio_set_value(g, value)
 #define GPIO_READ(g)        gpio_get_value(g)
 
 #define CHECK_BIT(var,pos) ((var) & (1<<(pos)
@@ -46,14 +45,10 @@ void printString(const char *buff, size_t count);
 
 
 void write4Bits(char half_byte){
-    SET_GPIO_LOW(PIN_D4);
-    SET_GPIO_LOW(PIN_D5);
-    SET_GPIO_LOW(PIN_D6);
-    SET_GPIO_LOW(PIN_D7);
-    if(CHECK_BIT(half_byte, 0)) SET_GPIO_HIGH(PIN_D4);
-    if(CHECK_BIT(half_byte, 1)) SET_GPIO_HIGH(PIN_D5);
-    if(CHECK_BIT(half_byte, 2)) SET_GPIO_HIGH(PIN_D6);
-    if(CHECK_BIT(half_byte, 3)) SET_GPIO_HIGH(PIN_D7);
+    SET_GPIO(PIN_D4, CHECK_BIT(half_byte, 0));
+    SET_GPIO(PIN_D5, CHECK_BIT(half_byte, 1));
+    SET_GPIO(PIN_D6, CHECK_BIT(half_byte, 2));
+    SET_GPIO(PIN_D7, CHECK_BIT(half_byte, 3));
     
     enablePulse(); 
 }
@@ -72,10 +67,10 @@ void writeByte(unsigned char byte, int mode){
     unsigned char *bits;
     if(mode == MODE_CHAR){
         //OUT_GPIO(PIN_RS, mode);
-        SET_GPIO_HIGH(PIN_RS);
+        SET_GPIO(PIN_RS, 1);
     }else if(mode == MODE_CMD){
         //OUT_GPIO(PIN_RS, mode); 
-        SET_GPIO_LOW(PIN_RS);
+        SET_GPIO(PIN_RS, 0);
     }
     
     bits = byteToTwo(byte);
