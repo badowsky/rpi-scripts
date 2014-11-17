@@ -143,12 +143,12 @@ void printChar(char character)
     
 }
 
-void printString(const char *buff, size_t count)
+void printString(char data[], size_t count)
 {   int len = count -1;
     int i;
     for(i=0;i<len;i++){
         printk(KERN_INFO "Petla %d", i);
-        //printChar(*(buff+i));
+        printChar(data[i]);
     }
     
     
@@ -182,7 +182,7 @@ ssize_t my_read(struct file *filep, char *buff, size_t count, loff_t *offp )
 ssize_t my_write(struct file *filep, const char *buff, size_t len, loff_t *offp )
 {
 	/* function to copy user space buffer to kernel space*/
-    char *str_data = (char*)kmalloc(len, GFP_KERNEL);
+    char str_data[len];
     if ( copy_from_user(str_data, buff, len) != 0 )
 	printk(KERN_INFO "Userspace -> kernel copy failed!\n" );
     printString(str_data, len);
