@@ -24,8 +24,8 @@
 #define MODE_CHAR           1
 #define MODE_CMD            0
 
-#define INP_GPIO(g)         gpio_direction_input(g)
-#define OUT_GPIO(g, value)  gpio_direction_output(g, value)
+//#define INP_GPIO(g)         gpio_direction_input(g)
+//#define OUT_GPIO(g, value)  gpio_direction_output(g, value)
 #define SET_GPIO(g, value)  gpio_set_value(g, value)
 #define GPIO_READ(g)        gpio_get_value(g)
 
@@ -44,6 +44,15 @@ void lcd_init(void);
 void printChar(char character);
 void printString(const char *buff, size_t count);
 void my_delay(int us);
+
+static struct gpio lcd[] = {
+{ 27, GPIOF_OUT_INIT_LOW, "LCD_RS" },
+{ 17, GPIOF_OUT_INIT_LOW, "LCD_E" },
+{ 11, GPIOF_OUT_INIT_LOW, "LCD_D4" },
+{ 9, GPIOF_OUT_INIT_LOW, "LCD_D5" },
+{ 10, GPIOF_OUT_INIT_LOW, "LCD_D6" },
+{ 22, GPIOF_OUT_INIT_LOW, "LCD_D7" },
+};
 
 
 void my_delay(int us){
@@ -99,12 +108,12 @@ char* byteToTwo(char byte){
 
 void lcd_init(void)
 {
-    OUT_GPIO(PIN_RS, 0);
-    OUT_GPIO(PIN_E, 0);
-    OUT_GPIO(PIN_D4, 0);
-    OUT_GPIO(PIN_D5, 0);
-    OUT_GPIO(PIN_D6, 0);
-    OUT_GPIO(PIN_D7, 0);
+    //OUT_GPIO(PIN_RS, 0);
+    //OUT_GPIO(PIN_E, 0);
+    //OUT_GPIO(PIN_D4, 0);
+    //OUT_GPIO(PIN_D5, 0);
+    //OUT_GPIO(PIN_D6, 0);
+    //OUT_GPIO(PIN_D7, 0);
     
     writeByte(0x33, MODE_CMD);
     writeByte(0x32, MODE_CMD);
@@ -180,17 +189,27 @@ ssize_t my_write(struct file *filep, const char *buff, size_t len, loff_t *offp 
 
 static int chardev_init(void)
 {
-printk(KERN_INFO "LCD char_dev registration.");
-if(register_chrdev(222, "my_device", &my_fops)){
-	printk(KERN_ERR "Register filed.");
-}
-return 0;
+    printk(KERN_INFO "LCD char_dev registration.");
+    ret = gpio_request_array(lcd, ARRAY_SIZE(lcd));
+    if (ret) {
+        printk(KERN_ERR "Unable to request GPIOs: %d\n", ret);
+    }
+
+    if(register_chrdev(222, "my_device", &my_fops)){
+        printk(KERN_ERR "Register filed.");
+    }
+    return 0;
 }
 static void chardev_exit(void)
 {
-printk("LCD char_dev unregistration.");
-unregister_chrdev(222, "my_device");
-return ;
+    for(i = 0; i < ARRAY_SIZE(lcd); i++) {
+        gpio_set_value(lcd[i].gpio, 0);
+    }
+    // unregister all GPIOs
+    gpio_free_array(lcd, ARRAY_SIZE(lcd));
+    printk("LCD char_dev unregistration.");
+    unregister_chrdev(222, "my_device");
+    return ;
 }
 
 MODULE_AUTHOR("Mateusz Badowski");
