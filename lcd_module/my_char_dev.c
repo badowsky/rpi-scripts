@@ -22,6 +22,8 @@
 
 #include <linux/fs.h>
 
+#include <asm/uaccess.h
+
 #define PIN_RS              27
 #define PIN_E               17
 #define PIN_D4              11
