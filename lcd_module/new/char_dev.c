@@ -70,7 +70,6 @@ static char current_len = 0;
 //ssize_t my_read(struct file *filep,char *buff,size_t count,loff_t *offp );
 //ssize_t my_write(struct file *filep,const char *buff,size_t len,loff_t *offp );
 
-char my_data[80]="hi from kernel";
 void write4Bits(char half_byte);
 void enablePulse(void);
 void writeByte(unsigned char byte, int mode);
@@ -188,7 +187,7 @@ void printMessage(void)
     writeByte(CMD_CLEAR, MODE_CMD);
     int i;
     for(i=0;i<current_len;i++){
-        printk(KERN_INFO "Petla %d", i);
+        printk(KERN_INFO "Petla %c", Message[i]);
         printChar(Message[i]);
     }    
 }
@@ -313,88 +312,6 @@ device_write(struct file *file,
 	return i;
 }
 
-/* 
- * This function is called whenever a process tries to do an ioctl on our
- * device file. We get two extra parameters (additional to the inode and file
- * structures, which all device functions get): the number of the ioctl called
- * and the parameter given to the ioctl function.
- *
- * If the ioctl is write or read/write (meaning output is returned to the
- * calling process), the ioctl call returns the output of this function.
- *
- */
-int device_ioctl(struct inode *inode,	/* see include/linux/fs.h */
-		 struct file *file,	/* ditto */
-		 unsigned int ioctl_num,	/* number and param for ioctl */
-		 unsigned long ioctl_param)
-{
-	int i;
-	char *temp;
-	char ch;
-
-	/* 
-	 * Switch according to the ioctl called 
-	 */
-	switch (ioctl_num) {
-	case IOCTL_SET_MSG:
-		/* 
-		 * Receive a pointer to a message (in user space) and set that
-		 * to be the device's message.  Get the parameter given to 
-		 * ioctl by the process. 
-		 */
-		temp = (char *)ioctl_param;
-
-		/* 
-		 * Find the length of the message 
-		 */
-		get_user(ch, temp);
-		for (i = 0; ch && i < BUF_LEN; i++, temp++)
-			get_user(ch, temp);
-
-		device_write(file, (char *)ioctl_param, i, 0);
-		break;
-
-	case IOCTL_GET_MSG:
-		/* 
-		 * Give the current message to the calling process - 
-		 * the parameter we got is a pointer, fill it. 
-		 */
-		i = device_read(file, (char *)ioctl_param, 99, 0);
-
-		/* 
-		 * Put a zero at the end of the buffer, so it will be 
-		 * properly terminated 
-		 */
-		put_user('\0', (char *)ioctl_param + i);
-		break;
-
-	case IOCTL_GET_NTH_BYTE:
-		/* 
-		 * This ioctl is both input (ioctl_param) and 
-		 * output (the return value of this function) 
-		 */
-		return Message[ioctl_param];
-		break;
-	}
-
-	return SUCCESS;
-}
-
-/* Module Declarations */
-
-/* 
- * This structure will hold the functions to be called
- * when a process does something to the device we
- * created. Since a pointer to this structure is kept in
- * the devices table, it can't be local to
- * init_module. NULL is for unimplemented functions. 
- */
-struct file_operations Fops = {
-	.read = device_read,
-	.write = device_write,
-	.open = device_open,
-	.release = device_release,	/* a.k.a. close */
-};
 
 /* 
  * Initialize the module - Register the character device 
