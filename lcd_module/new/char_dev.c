@@ -185,7 +185,7 @@ void printString(char data[], size_t count)
 
 void printMessage(void)
 {   
-    writeByte(CMD_CLEAR);
+    writeByte(CMD_CLEAR, MODE_CMD);
     int i;
     for(i=0;i<current_len;i++){
         printk(KERN_INFO "Petla %d", i);
@@ -303,7 +303,7 @@ device_write(struct file *file,
 
 	for (i = 0; i < length && i < BUF_LEN; i++)
 		get_user(Message[i], buffer + i);
-        current_lenght = length -1;
+        current_len = length -1;
 	Message_Ptr = Message;
         printMessage();
 
