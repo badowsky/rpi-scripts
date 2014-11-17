@@ -50,14 +50,14 @@ char my_data[80]="hi from kernel";
 //void printString(const char *buff, size_t count);
 //void my_delay(int us);
 //
-//static struct gpio lcd[] = {
-//{ 27, GPIOF_OUT_INIT_LOW, "LCD_RS" },
-//{ 17, GPIOF_OUT_INIT_LOW, "LCD_E" },
-//{ 11, GPIOF_OUT_INIT_LOW, "LCD_D4" },
-//{ 9, GPIOF_OUT_INIT_LOW, "LCD_D5" },
-//{ 10, GPIOF_OUT_INIT_LOW, "LCD_D6" },
-//{ 22, GPIOF_OUT_INIT_LOW, "LCD_D7" },
-//};
+static struct gpio lcd[] = {
+{ 27, GPIOF_OUT_INIT_LOW, "LCD_RS" },
+{ 17, GPIOF_OUT_INIT_LOW, "LCD_E" },
+{ 11, GPIOF_OUT_INIT_LOW, "LCD_D4" },
+{ 9, GPIOF_OUT_INIT_LOW, "LCD_D5" },
+{ 10, GPIOF_OUT_INIT_LOW, "LCD_D6" },
+{ 22, GPIOF_OUT_INIT_LOW, "LCD_D7" },
+};
 //
 //
 //void my_delay(int us){
@@ -196,29 +196,29 @@ struct file_operations my_fops={
 
 static int __init chardev_init(void)
 {
-//    int ret = 0;
+    int ret = 0;
     printk(KERN_INFO "LCD char_dev registration.");
-//    ret = gpio_request_array(lcd, ARRAY_SIZE(lcd));
-//    if (ret) {
-//        printk(KERN_ERR "Unable to request GPIOs: %d\n", ret);
-//    }
-//
-//    if(register_chrdev(222, "my_device", &my_fops)){
-//        printk(KERN_ERR "Register filed.");
-//    }
+    ret = gpio_request_array(lcd, ARRAY_SIZE(lcd));
+    if (ret) {
+        printk(KERN_ERR "Unable to request GPIOs: %d\n", ret);
+    }
+
+    if(register_chrdev(222, "my_device", &my_fops)){
+        printk(KERN_ERR "Register filed.");
+    }
     return 0;
 }
 static void __exit chardev_exit(void)
 {
-//    int i;
-//    for(i = 0; i < ARRAY_SIZE(lcd); i++) {
-//        gpio_set_value(lcd[i].gpio, 0);
-//    }
-//    // unregister all GPIOs
-//    gpio_free_array(lcd, ARRAY_SIZE(lcd));
+    int i;
+    for(i = 0; i < ARRAY_SIZE(lcd); i++) {
+        gpio_set_value(lcd[i].gpio, 0);
+    }
+    // unregister all GPIOs
+    gpio_free_array(lcd, ARRAY_SIZE(lcd));
     printk("LCD char_dev unregistration.");
-//    unregister_chrdev(222, "my_device");
-//    return ;
+    unregister_chrdev(222, "my_device");
+    return ;
 }
 
 MODULE_AUTHOR("Mateusz Badowski");
