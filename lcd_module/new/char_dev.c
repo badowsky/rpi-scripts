@@ -52,7 +52,7 @@ static char current_len = 0;
 #define SHIFT_RIGHT         0x1C
 #define CURS_BASE           0x80
 
-#define ENABLE_DELAY        5500
+#define ENABLE_DELAY        550
 #define ENALBE_PULSE	    550
 
 #define MODE_CHAR           1
