@@ -50,7 +50,6 @@ inline void my_delay(int n){
     udelay(n);
 }
 void resetPulse(void){
-<<<<<<< HEAD
     printk(KERN_INFO "Sending reset pulse.");
 	OUT_GPIO(DS_PIN);
 	// pin low for 480 us
@@ -58,9 +57,7 @@ void resetPulse(void){
 	my_delay(1000);
     //SET_GPIO_HIGH(DS_PIN);
     INP_GPIO(DS_PIN);
-=======
 
->>>>>>> 40b846fbd52e5ccaa255eadfd707c8829f431c50
 }
 
 int  initialize(void)
@@ -175,12 +172,8 @@ static int __init gpiomod_init(void)
     }
 	int i;
 	for(i=0;i<10;i++){
-<<<<<<< HEAD
-    		readDeviceAdress();
-=======
 		printk(KERN_INFO "Try number: %d\n", i+1);
     	readDeviceID();
->>>>>>> 40b846fbd52e5ccaa255eadfd707c8829f431c50
 	}
     return ret;
 }
