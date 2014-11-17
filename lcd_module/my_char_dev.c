@@ -49,10 +49,10 @@
 
 #define CHECK_BIT(var,pos) ((var) & (1<<(pos)))
 
-int my_open(struct inode *inode,struct file *filep);
-int my_release(struct inode *inode,struct file *filep);
-ssize_t my_read(struct file *filep,char *buff,size_t count,loff_t *offp );
-ssize_t my_write(struct file *filep,const char *buff,size_t len,loff_t *offp );
+//int my_open(struct inode *inode,struct file *filep);
+//int my_release(struct inode *inode,struct file *filep);
+//ssize_t my_read(struct file *filep,char *buff,size_t count,loff_t *offp );
+//ssize_t my_write(struct file *filep,const char *buff,size_t len,loff_t *offp );
 
 char my_data[80]="hi from kernel";
 void write4Bits(char half_byte);
@@ -229,7 +229,7 @@ static void __exit chardev_exit(void)
     for(i = 0; i < ARRAY_SIZE(lcd); i++) {
         gpio_set_value(lcd[i].gpio, 0);
     }
-    unregister all GPIOs
+    //unregister all GPIOs
     gpio_free_array(lcd, ARRAY_SIZE(lcd));
     //gpio_free(PIN_E);
     printk("LCD char_dev unregistration.");
