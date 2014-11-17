@@ -1,3 +1,17 @@
+//#include<linux/module.h>
+//#include<linux/init.h>
+//#include<linux/kernel.h>
+//#include<linux/slab.h>
+//#include <linux/time.h>
+//#include <linux/gpio.h>
+//#include <linux/delay.h>
+//#include <linux/fs.h>
+//
+//#include <linux/errno.h>
+//#include <asm/current.h>
+//#include <asm/segment.h>
+//#include <asm/uaccess.h>
+
 #include <linux/module.h>	
 #include <linux/kernel.h>
 #include <linux/sched.h>
@@ -5,6 +19,8 @@
 #include <linux/init.h>
 #include <linux/gpio.h>
 #include <linux/delay.h>
+
+#include <linux/fs.h>
 
 #define PIN_RS              27
 #define PIN_E               17
