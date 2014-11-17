@@ -148,7 +148,7 @@ void printString(const char *buff, size_t count)
     int i;
     for(i=0;i<len;i++){
         printk(KERN_INFO "Petla %d", i);
-        printChar(*(buff+i));
+        //printChar(*(buff+i));
     }
     );
     
