@@ -1,10 +1,16 @@
 #include<linux/module.h>
 #include<linux/init.h>
+#include<linux/kernel.h>
 #include<linux/slab.h>
 #include <linux/time.h>
 #include <linux/gpio.h>
 #include <linux/delay.h>
-#include"my_char_dev.h"
+#include <linux/fs.h>
+
+#include <linux/errno.h>
+#include <asm/current.h>
+#include <asm/segment.h>
+#include <asm/uaccess.h>
 
 #define PIN_RS              27
 #define PIN_E               17
@@ -24,16 +30,15 @@
 #define MODE_CHAR           1
 #define MODE_CMD            0
 
-//#define INP_GPIO(g)         gpio_direction_input(g)
-//#define OUT_GPIO(g, value)  gpio_direction_output(g, value)
 #define SET_GPIO(g, value)  gpio_set_value(g, value)
 #define GPIO_READ(g)        gpio_get_value(g)
 
 #define CHECK_BIT(var,pos) ((var) & (1<<(pos)))
 
-static int chardev_init(void);
-static void chardev_exit(void);
-
+int my_open(struct inode *inode,struct file *filep);
+int my_release(struct inode *inode,struct file *filep);
+ssize_t my_read(struct file *filep,char *buff,size_t count,loff_t *offp );
+ssize_t my_write(struct file *filep,const char *buff,size_t len,loff_t *offp );
 
 char my_data[80]="hi from kernel";
 void write4Bits(char half_byte);
@@ -187,8 +192,9 @@ ssize_t my_write(struct file *filep, const char *buff, size_t len, loff_t *offp 
 	return 0;
 }
 
-static int chardev_init(void)
+static int __init chardev_init(void)
 {
+    int ret = 0;
     printk(KERN_INFO "LCD char_dev registration.");
     ret = gpio_request_array(lcd, ARRAY_SIZE(lcd));
     if (ret) {
@@ -200,8 +206,9 @@ static int chardev_init(void)
     }
     return 0;
 }
-static void chardev_exit(void)
+static void __exit chardev_exit(void)
 {
+    int i;
     for(i = 0; i < ARRAY_SIZE(lcd); i++) {
         gpio_set_value(lcd[i].gpio, 0);
     }
