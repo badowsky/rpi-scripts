@@ -299,7 +299,7 @@ device_write(struct file *file,
 	printk(KERN_INFO "device_write(%p,%d)", file, length);
         current_len = length -1;
         
-	for (i = 0; i < current_len && i < BUF_LEN; i++)
+	for (i = 0; i < lenght && i < BUF_LEN; i++)
 		get_user(Message[i], buffer + i);
 	Message_Ptr = Message;
         printMessage();
