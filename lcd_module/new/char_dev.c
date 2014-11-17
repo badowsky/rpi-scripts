@@ -17,7 +17,7 @@
 #include "char_dev.h"
 #define SUCCESS 0
 #define DEVICE_NAME "char_dev"
-#define BUF_LEN 16
+#define BUF_LEN 32
 
 /* 
  * Is the device open right now? Used to prevent
@@ -63,7 +63,6 @@ static char current_len = 0;
 
 #define CHECK_BIT(var,pos) ((var) & (1<<(pos)))
 
-#define BUF_LEN             32
 
 //int my_open(struct inode *inode,struct file *filep);
 //int my_release(struct inode *inode,struct file *filep);
