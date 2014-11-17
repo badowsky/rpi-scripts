@@ -190,7 +190,7 @@ void printMessage(void)
     for(i=0;i<current_len;i++){
         printk(KERN_INFO "Petla %c", Message[i]);
         printChar(Message[i]);
-        if(i == 15) writeByte(0x0C, MODE_CMD);
+        if(i == 15) writeByte(0xC0, MODE_CMD);
     }
 }
 
