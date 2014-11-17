@@ -70,6 +70,7 @@ static char current_len = 0;
 //ssize_t my_read(struct file *filep,char *buff,size_t count,loff_t *offp );
 //ssize_t my_write(struct file *filep,const char *buff,size_t len,loff_t *offp );
 
+char my_data[80]="hi from kernel";
 void write4Bits(char half_byte);
 void enablePulse(void);
 void writeByte(unsigned char byte, int mode);
@@ -189,8 +190,7 @@ void printMessage(void)
     for(i=0;i<current_len;i++){
         printk(KERN_INFO "Petla %c", Message[i]);
         printChar(Message[i]);
-    }    
-}
+ 
 
 
 /* 
@@ -312,6 +312,22 @@ device_write(struct file *file,
 	return i;
 }
 
+
+/* Module Declarations */
+
+/* 
+ * This structure will hold the functions to be called
+ * when a process does something to the device we
+ * created. Since a pointer to this structure is kept in
+ * the devices table, it can't be local to
+ * init_module. NULL is for unimplemented functions. 
+ */
+struct file_operations Fops = {
+	.read = device_read,
+	.write = device_write,
+	.open = device_open,
+	.release = device_release,	/* a.k.a. close */
+};
 
 /* 
  * Initialize the module - Register the character device 
