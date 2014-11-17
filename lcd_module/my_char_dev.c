@@ -218,9 +218,9 @@ static int __init chardev_init(void)
         printk(KERN_ERR "Unable to request GPIOs: %d\n", ret);
     }
 
-    if(register_chrdev(222, "my_device", &my_fops)){
-        printk(KERN_ERR "Register filed.");
-    }
+//    if(register_chrdev(222, "my_device", &my_fops)){
+//        printk(KERN_ERR "Register filed.");
+//    }
     return 0;
 }
 static void __exit chardev_exit(void)
@@ -233,7 +233,7 @@ static void __exit chardev_exit(void)
     //gpio_free_array(lcd, ARRAY_SIZE(lcd));
     gpio_free(PIN_E);
     printk("LCD char_dev unregistration.");
-    unregister_chrdev(222, "my_device");
+    //unregister_chrdev(222, "my_device");
     return ;
 }
 
