@@ -50,14 +50,14 @@ char my_data[80]="hi from kernel";
 //void printString(const char *buff, size_t count);
 //void my_delay(int us);
 //
-static struct gpio lcd[] = {
-{ 27, GPIOF_OUT_INIT_LOW, "LCD_RS" },
-{ 17, GPIOF_OUT_INIT_LOW, "LCD_E" },
-{ 11, GPIOF_OUT_INIT_LOW, "LCD_D4" },
-{ 9, GPIOF_OUT_INIT_LOW, "LCD_D5" },
-{ 10, GPIOF_OUT_INIT_LOW, "LCD_D6" },
-{ 22, GPIOF_OUT_INIT_LOW, "LCD_D7" },
-};
+//static struct gpio lcd[] = {
+//{ 27, GPIOF_OUT_INIT_LOW, "LCD_RS" },
+//{ 17, GPIOF_OUT_INIT_LOW, "LCD_E" },
+//{ 11, GPIOF_OUT_INIT_LOW, "LCD_D4" },
+//{ 9, GPIOF_OUT_INIT_LOW, "LCD_D5" },
+//{ 10, GPIOF_OUT_INIT_LOW, "LCD_D6" },
+//{ 22, GPIOF_OUT_INIT_LOW, "LCD_D7" },
+//};
 //
 //
 //void my_delay(int us){
