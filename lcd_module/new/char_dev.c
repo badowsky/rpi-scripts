@@ -7,6 +7,13 @@
 #include <linux/fs.h>
 #include <asm/uaccess.h>	/* for get_user and put_user */
 
+#include <linux/gpio.h>
+#include <linux/delay.h>
+#include <linux/sched.h>
+#include <linux/time.h>
+#include <linux/init.h>
+#include<linux/slab.h> //kmalloc
+
 #include "char_dev.h"
 #define SUCCESS 0
 #define DEVICE_NAME "char_dev"
@@ -29,6 +36,161 @@ static char Message[BUF_LEN];
  * buffer we get to fill in device_read. 
  */
 static char *Message_Ptr;
+
+
+#define PIN_RS              27
+#define PIN_E               17
+#define PIN_D4              11
+#define PIN_D5              9
+#define PIN_D6              10
+#define PIN_D7              22
+
+#define CMD_CLEAR           0x01
+#define SHIFT_LEFT          0x18
+#define SHIFT_RIGHT         0x1C
+#define CURS_BASE           0x80
+
+#define ENABLE_DELAY        55
+#define ENALBE_PULSE	    55
+
+#define MODE_CHAR           1
+#define MODE_CMD            0
+
+#define SET_GPIO(g, value)  gpio_set_value(g, value)
+#define GPIO_READ(g)        gpio_get_value(g)
+
+#define CHECK_BIT(var,pos) ((var) & (1<<(pos)))
+
+#define BUF_LEN             16
+
+//int my_open(struct inode *inode,struct file *filep);
+//int my_release(struct inode *inode,struct file *filep);
+//ssize_t my_read(struct file *filep,char *buff,size_t count,loff_t *offp );
+//ssize_t my_write(struct file *filep,const char *buff,size_t len,loff_t *offp );
+
+char my_data[80]="hi from kernel";
+void write4Bits(char half_byte);
+void enablePulse(void);
+void writeByte(unsigned char byte, int mode);
+char* byteToTwo(char byte);
+void lcd_init(void);
+void printChar(char character);
+void printString(char data[], size_t count);
+void my_delay(int us);
+
+char str_data[BUF_LEN];
+
+static struct gpio lcd[] = {
+{ PIN_RS, GPIOF_OUT_INIT_LOW, "LCD_RS" },
+{ PIN_E, GPIOF_OUT_INIT_LOW, "LCD_E" },
+{ PIN_D4, GPIOF_OUT_INIT_LOW, "LCD_D4" },
+{ PIN_D5, GPIOF_OUT_INIT_LOW, "LCD_D5" },
+{ PIN_D6, GPIOF_OUT_INIT_LOW, "LCD_D6" },
+{ PIN_D7, GPIOF_OUT_INIT_LOW, "LCD_D7" },
+};
+
+
+void my_delay(int us){
+	udelay(us);
+
+}
+
+void write4Bits(char half_byte){
+    SET_GPIO(PIN_D4, CHECK_BIT(half_byte, 0));
+    SET_GPIO(PIN_D5, CHECK_BIT(half_byte, 1));
+    SET_GPIO(PIN_D6, CHECK_BIT(half_byte, 2));
+    SET_GPIO(PIN_D7, CHECK_BIT(half_byte, 3));
+    
+    enablePulse(); 
+}
+
+void enablePulse(void){
+    my_delay(ENABLE_DELAY);
+    SET_GPIO(PIN_E, 1);
+    my_delay(ENALBE_PULSE);
+    SET_GPIO(PIN_E, 0);
+    my_delay(ENABLE_DELAY);
+}
+
+void writeByte(unsigned char byte, int mode){
+    //Check to be save of invalid mode
+    unsigned char *bits;
+    if(mode == MODE_CHAR){
+        //OUT_GPIO(PIN_RS, mode);
+        SET_GPIO(PIN_RS, 1);
+    }else if(mode == MODE_CMD){
+        //OUT_GPIO(PIN_RS, mode); 
+        SET_GPIO(PIN_RS, 0);
+    }
+    
+    bits = byteToTwo(byte);
+
+    write4Bits(*bits);
+
+    write4Bits(*(bits+1));
+
+    
+}
+
+char* byteToTwo(char byte){
+        unsigned char i;
+        unsigned char *bits = (unsigned char*) kmalloc(3, GFP_KERNEL);
+        bits[0]=byte>>4;
+        bits[1]=byte<<4;
+        bits[1]=bits[1]>>4;
+        return bits;
+}
+
+void lcd_init(void)
+{
+    //OUT_GPIO(PIN_RS, 0);
+    //OUT_GPIO(PIN_E, 0);
+    //OUT_GPIO(PIN_D4, 0);
+    //OUT_GPIO(PIN_D5, 0);
+    //OUT_GPIO(PIN_D6, 0);
+    //OUT_GPIO(PIN_D7, 0);
+    
+    writeByte(0x33, MODE_CMD);
+    writeByte(0x32, MODE_CMD);
+    writeByte(0x28, MODE_CMD);
+    writeByte(0x0C, MODE_CMD);
+    writeByte(0x06, MODE_CMD);
+    writeByte(0x01, MODE_CMD); 
+}
+
+void setCursorPos(int x, int y){
+    //if ((x >= 0) and (x <= 7)) and (y == 0 or y == 1){
+        unsigned char pos_cmd = CURS_BASE + x + (y * 16);
+        writeByte(pos_cmd, MODE_CMD);
+    //}else{
+        //printk( "Wrong cursor position sent: x = %d, y = %d", x, y);
+    //}
+}
+
+void printChar(char character)
+{   
+    writeByte(character, MODE_CHAR);
+    
+}
+
+void printString(char data[], size_t count)
+{   int len = count -1;
+    int i;
+    for(i=0;i<len;i++){
+        printk(KERN_INFO "Petla %d", i);
+        printChar(data[i]);
+    }    
+}
+
+void printMessage()
+{
+    int i;
+    for(i=0;i<BUF_LEN;i++){
+        printk(KERN_INFO "Petla %d", i);
+        printChar(Message[i]);
+    }    
+}
+
 
 /* 
  * This is called whenever a process attempts to open the device file 
@@ -141,6 +303,7 @@ device_write(struct file *file,
 		get_user(Message[i], buffer + i);
 
 	Message_Ptr = Message;
+        printMessage();
 
 	/* 
 	 * Again, return the number of input characters used 
