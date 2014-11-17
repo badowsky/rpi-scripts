@@ -22,7 +22,7 @@
 
 #include <linux/fs.h> //fops
 
-#include <asm/uaccess.h> //copy_from_user
+//#include <asm/uaccess.h> //copy_from_user
 
 //#include<linux/slab.h> //kmalloc
 
@@ -185,9 +185,9 @@ int my_release(struct inode *inode, struct file *filep)
 ssize_t my_read(struct file *filep, char *buff, size_t count, loff_t *offp )
 {
 	/* function to copy kernel space buffer to user space*/
-	if ( copy_to_user(buff,my_data,strlen(my_data)) != 0 )
+	//if ( copy_to_user(buff,my_data,strlen(my_data)) != 0 )
 		printk( "Kernel -> userspace copy failed!\n" );
-	return strlen(my_data);
+	return 0;//strlen(my_data);
 
 }
 
@@ -195,7 +195,7 @@ ssize_t my_write(struct file *filep, const char *buff, size_t len, loff_t *offp 
 {
 	/* function to copy user space buffer to kernel space*/
     //char *my_data = (char*)kmalloc(len, GFP_KERNEL);
-	if ( copy_from_user(my_data, buff, len) != 0 )
+	//if ( copy_from_user(my_data, buff, len) != 0 )
 		printk( "Userspace -> kernel copy failed!\n" );
     //printString(my_data, len);
 	return 0;
