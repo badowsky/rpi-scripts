@@ -24,7 +24,7 @@
 
 #include <asm/uaccess.h> //copy_from_user
 
-#include<linux/slab.h> //kmalloc
+//#include<linux/slab.h> //kmalloc
 
 #define PIN_RS              27
 #define PIN_E               17
@@ -194,7 +194,7 @@ ssize_t my_read(struct file *filep, char *buff, size_t count, loff_t *offp )
 ssize_t my_write(struct file *filep, const char *buff, size_t len, loff_t *offp )
 {
 	/* function to copy user space buffer to kernel space*/
-    char *my_data = (char*)kmalloc(len, GFP_KERNEL);
+    //char *my_data = (char*)kmalloc(len, GFP_KERNEL);
 	if ( copy_from_user(my_data, buff, len) != 0 )
 		printk( "Userspace -> kernel copy failed!\n" );
     //printString(my_data, len);
