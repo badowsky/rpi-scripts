@@ -1,5 +1,6 @@
 #include<linux/module.h>
 #include<linux/init.h>
+#include<linux/slab.h>
 #include <linux/time.h>
 #include <linux/gpio.h>
 #include <linux/delay.h>
@@ -17,8 +18,8 @@
 #define SHIFT_RIGHT         0x1C
 #define CURS_BASE           0x80
 
-#define ENABLE_DELAY        
-#define ENALBE_PULSE
+#define ENABLE_DELAY        55
+#define ENALBE_PULSE	    55
 
 #define MODE_CHAR           1
 #define MODE_CMD            0
@@ -28,7 +29,7 @@
 #define SET_GPIO(g, value)  gpio_set_value(g, value)
 #define GPIO_READ(g)        gpio_get_value(g)
 
-#define CHECK_BIT(var,pos) ((var) & (1<<(pos)
+#define CHECK_BIT(var,pos) ((var) & (1<<(pos)))
 
 static int chardev_init(void);
 static void chardev_exit(void);
@@ -42,7 +43,13 @@ char* byteToTwo(char byte);
 void lcd_init(void);
 void printChar(char character);
 void printString(const char *buff, size_t count);
+void my_delay(int us);
 
+
+void my_delay(int us){
+	udelay(us);
+
+}
 
 void write4Bits(char half_byte){
     SET_GPIO(PIN_D4, CHECK_BIT(half_byte, 0));
@@ -54,12 +61,11 @@ void write4Bits(char half_byte){
 }
 
 void enablePulse(void){
-    write4Bits(*bits);
-    delay(ENABLE_DELAY);
-    SET_GPIO_HIGH(PIN_E)
-    delay(ENALBE_PULSE);
-    SET_GPIO_LOW(PIN_E)
-    delay(ENABLE_DELAY);
+    my_delay(ENABLE_DELAY);
+    SET_GPIO(PIN_E, 1);
+    my_delay(ENALBE_PULSE);
+    SET_GPIO(PIN_E, 0);
+    my_delay(ENABLE_DELAY);
 }
 
 void writeByte(unsigned char byte, int mode){
@@ -84,8 +90,7 @@ void writeByte(unsigned char byte, int mode){
 
 char* byteToTwo(char byte){
         unsigned char i;
-        unsigned char *bits;
-        bits=(char *)malloc(2);
+        unsigned char *bits = (unsigned char*) kmalloc(3, GFP_KERNEL);
         bits[0]=byte>>4;
         bits[1]=byte<<4;
         bits[1]=bits[1]>>4;
@@ -110,12 +115,12 @@ void lcd_init(void)
 }
 
 void setCursorPos(int x, int y){
-    if(x >= 0 and x <= 7 and (y == 0 or y == 1)){
+    //if ((x >= 0) and (x <= 7)) and (y == 0 or y == 1){
         unsigned char pos_cmd = CURS_BASE + x + (y * 16);
         writeByte(pos_cmd, MODE_CMD);
-    }else{
-        printk( "Wrong cursor position sent: x = %d, y = %d", x, y);
-    }
+    //}else{
+        //printk( "Wrong cursor position sent: x = %d, y = %d", x, y);
+    //}
 }
 
 void printChar(char character)
@@ -166,8 +171,8 @@ ssize_t my_read(struct file *filep, char *buff, size_t count, loff_t *offp )
 ssize_t my_write(struct file *filep, const char *buff, size_t len, loff_t *offp )
 {
 	/* function to copy user space buffer to kernel space*/
-    char *my_data = malloc(len);
-	if ( copy_from_user(my_data, buff,count) != 0 )
+    char *my_data = (char*)kmalloc(len, GFP_KERNEL);
+	if ( copy_from_user(my_data, buff, len) != 0 )
 		printk( "Userspace -> kernel copy failed!\n" );
     printString(my_data, len);
 	return 0;
