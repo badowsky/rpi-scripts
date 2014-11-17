@@ -154,12 +154,7 @@ char my_data[80]="hi from kernel";
 
 //  FILE OPERATIONS:
 
-struct file_operations my_fops={
-	open: my_open,
-	read: my_read,
-	write: my_write,
-	release: my_release,
-};
+
 
 int my_open(struct inode *inode, struct file *filep)
 {
@@ -191,6 +186,13 @@ ssize_t my_write(struct file *filep, const char *buff, size_t len, loff_t *offp 
     //printString(my_data, len);
 	return 0;
 }
+
+struct file_operations my_fops={
+	open: my_open,
+	read: my_read,
+	write: my_write,
+	release: my_release,
+};
 
 static int __init chardev_init(void)
 {
