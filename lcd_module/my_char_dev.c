@@ -221,6 +221,7 @@ static int __init chardev_init(void)
     if(register_chrdev(222, "my_device", &my_fops)){
         printk(KERN_ERR "Register filed.");
     }
+    lcd_init();
     return 0;
 }
 static void __exit chardev_exit(void)
@@ -232,7 +233,7 @@ static void __exit chardev_exit(void)
     //unregister all GPIOs
     gpio_free_array(lcd, ARRAY_SIZE(lcd));
     //gpio_free(PIN_E);
-    printk("LCD char_dev unregistration.");
+    printk(KERN_INFO "LCD char_dev unregistration.");
     unregister_chrdev(222, "my_device");
     return ;
 }
