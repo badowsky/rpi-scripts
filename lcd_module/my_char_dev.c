@@ -47,7 +47,7 @@ void writeByte(unsigned char byte, int mode);
 char* byteToTwo(char byte);
 void lcd_init(void);
 void printChar(char character);
-void printString(const char *buff, size_t count);
+void printString(char data[], size_t count);
 void my_delay(int us);
 
 static struct gpio lcd[] = {
