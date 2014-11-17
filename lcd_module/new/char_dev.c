@@ -423,7 +423,14 @@ int init_module()
 	printk(KERN_INFO "The device file name is important, because\n");
 	printk(KERN_INFO "the ioctl program assumes that's the\n");
 	printk(KERN_INFO "file you'll use.\n");
-
+        
+        int ret = 0;
+        printk(KERN_INFO "Pins registration...");
+        //ret = gpio_request_one(PIN_E, GPIOF_OUT_INIT_LOW, "LCD_E");
+        ret = gpio_request_array(lcd, ARRAY_SIZE(lcd));
+        if (ret) {
+            printk(KERN_ERR "Unable to request GPIOs: %d\n", ret);
+        }
 	return 0;
 }
 
@@ -433,7 +440,12 @@ int init_module()
 void cleanup_module()
 {
 	
-
+        int i;
+        for(i = 0; i < ARRAY_SIZE(lcd); i++) {
+            gpio_set_value(lcd[i].gpio, 0);
+        }
+        //unregister all GPIOs
+        gpio_free_array(lcd, ARRAY_SIZE(lcd))
 	/* 
 	 * Unregister the device 
 	 */
@@ -443,3 +455,7 @@ void cleanup_module()
 	 * If there's an error, report it 
 	 */
 }
+
+MODULE_LICENSE("GPL");
+MODULE_AUTHOR("Mateusz Badowski");
+MODULE_DESCRIPTION("LCD 2x16 Char Device"
