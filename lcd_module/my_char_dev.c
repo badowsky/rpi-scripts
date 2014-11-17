@@ -35,6 +35,8 @@
 
 #define CHECK_BIT(var,pos) ((var) & (1<<(pos)))
 
+#define BUF_LEN             16
+
 //int my_open(struct inode *inode,struct file *filep);
 //int my_release(struct inode *inode,struct file *filep);
 //ssize_t my_read(struct file *filep,char *buff,size_t count,loff_t *offp );
@@ -49,6 +51,8 @@ void lcd_init(void);
 void printChar(char character);
 void printString(char data[], size_t count);
 void my_delay(int us);
+
+char str_data[BUF_LEN];
 
 static struct gpio lcd[] = {
 { PIN_RS, GPIOF_OUT_INIT_LOW, "LCD_RS" },
@@ -183,11 +187,11 @@ ssize_t my_read(struct file *filep, char *buff, size_t count, loff_t *offp )
 ssize_t my_write(struct file *file, const char __user * buffer, size_t length, loff_t * offset)
 {
 	int i;
-        char str_data[16];
+        
 	printk(KERN_INFO "device_write(File: %p, Buffer: %s, lenght: %d)", file, buffer, length);
 
-	for (i = 0; i < length && i < 16; i++)
-		str_data(Message[i], buffer + i);
+	for (i = 0; i < length && i < BUF_LEN; i++)
+		get_user(str_data[i], buffer + i);
 	/* function to copy user space buffer to kernel space*/
 //    printk(KERN_INFO "1" );
 //    char str_data[len];
