@@ -445,7 +445,7 @@ void cleanup_module()
             gpio_set_value(lcd[i].gpio, 0);
         }
         //unregister all GPIOs
-        gpio_free_array(lcd, ARRAY_SIZE(lcd))
+        gpio_free_array(lcd, ARRAY_SIZE(lcd));
 	/* 
 	 * Unregister the device 
 	 */
@@ -458,4 +458,4 @@ void cleanup_module()
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Mateusz Badowski");
-MODULE_DESCRIPTION("LCD 2x16 Char Device"
+MODULE_DESCRIPTION("LCD 2x16 Char Device");
