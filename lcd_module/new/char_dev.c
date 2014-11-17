@@ -63,7 +63,7 @@ static char current_len = 0;
 
 #define CHECK_BIT(var,pos) ((var) & (1<<(pos)))
 
-#define BUF_LEN             16
+#define BUF_LEN             32
 
 //int my_open(struct inode *inode,struct file *filep);
 //int my_release(struct inode *inode,struct file *filep);
@@ -190,7 +190,7 @@ void printMessage(void)
     for(i=0;i<current_len;i++){
         printk(KERN_INFO "Petla %c", Message[i]);
         printChar(Message[i]);
-        if(i == 7) setCursorPos(0, 1);
+        if(i == 15) setCursorPos(0, 1);
     }
 }
 
