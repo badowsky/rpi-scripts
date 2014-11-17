@@ -12,6 +12,11 @@
 #define PIN_D6
 #define PIN_D7
 
+#define CMD_CLEAR           0x01
+#define SHIFT_LEFT          0x18
+#define SHIFT_RIGHT         0x1C
+#define CURS_BASE           0x80
+
 #define ENABLE_DELAY        
 #define ENALBE_PULSE
 
@@ -31,23 +36,29 @@ static void chardev_exit(void);
 
 
 char my_data[80]="hi from kernel";
+void write4Bits(char half_byte);
+void enablePulse(void);
+void writeByte(unsigned char byte, int mode);
+char* byteToTwo(char byte);
+void lcd_init(void);
+void printChar(char character);
+void printString(const char *buff, size_t count);
 
-void write4Bits(byte)
-{
+
+void write4Bits(char half_byte){
     SET_GPIO_LOW(PIN_D4);
     SET_GPIO_LOW(PIN_D5);
     SET_GPIO_LOW(PIN_D6);
     SET_GPIO_LOW(PIN_D7);
-    if(CHECK_BIT(byte, 0)) SET_GPIO_HIGH(PIN_D4);
-    if(CHECK_BIT(byte, 1)) SET_GPIO_HIGH(PIN_D5);
-    if(CHECK_BIT(byte, 2)) SET_GPIO_HIGH(PIN_D6);
-    if(CHECK_BIT(byte, 3)) SET_GPIO_HIGH(PIN_D7);
+    if(CHECK_BIT(half_byte, 0)) SET_GPIO_HIGH(PIN_D4);
+    if(CHECK_BIT(half_byte, 1)) SET_GPIO_HIGH(PIN_D5);
+    if(CHECK_BIT(half_byte, 2)) SET_GPIO_HIGH(PIN_D6);
+    if(CHECK_BIT(half_byte, 3)) SET_GPIO_HIGH(PIN_D7);
     
     enablePulse(); 
 }
 
-void enablePulse(void)
-{
+void enablePulse(void){
     write4Bits(*bits);
     delay(ENABLE_DELAY);
     SET_GPIO_HIGH(PIN_E)
@@ -56,20 +67,20 @@ void enablePulse(void)
     delay(ENABLE_DELAY);
 }
 
-void writeByte(unsigned char byte, int mode)
-{   //Check to be save of invalid mode
+void writeByte(unsigned char byte, int mode){
+    //Check to be save of invalid mode
     unsigned char *bits;
     if(mode == MODE_CHAR){
-        #OUT_GPIO(PIN_RS, mode);
+        //OUT_GPIO(PIN_RS, mode);
         SET_GPIO_HIGH(PIN_RS);
     }else if(mode == MODE_CMD){
-        #OUT_GPIO(PIN_RS, mode); 
+        //OUT_GPIO(PIN_RS, mode); 
         SET_GPIO_LOW(PIN_RS);
     }
     
     bits = byteToTwo(byte);
 
-    write4Bits(*bits)
+    write4Bits(*bits);
 
     write4Bits(*(bits+1));
 
@@ -100,20 +111,26 @@ void lcd_init(void)
     writeByte(0x28, MODE_CMD);
     writeByte(0x0C, MODE_CMD);
     writeByte(0x06, MODE_CMD);
-    writeByte(0x01, MODE_CMD);
-    
-    
-    
+    writeByte(0x01, MODE_CMD); 
+}
+
+void setCursorPos(int x, int y){
+    if(x >= 0 and x <= 7 and (y == 0 or y == 1)){
+        unsigned char pos_cmd = CURS_BASE + x + (y * 16);
+        writeByte(pos_cmd, MODE_CMD);
+    }else{
+        printk( "Wrong cursor position sent: x = %d, y = %d", x, y);
+    }
 }
 
 void printChar(char character)
 {   
-    writeByte(character);
+    writeByte(character, MODE_CHAR);
     
 }
 
 void printString(const char *buff, size_t count)
-{
+{   //int len = count -1;
     int i;
     for(i=0;i<count;i++){
         printChar(*(buff+i));
@@ -121,7 +138,7 @@ void printString(const char *buff, size_t count)
     
 }
 
-
+//  FILE OPERATIONS:
 
 struct file_operations my_fops={
 	open: my_open,
@@ -151,15 +168,15 @@ ssize_t my_read(struct file *filep, char *buff, size_t count, loff_t *offp )
 
 }
 
-ssize_t my_write(struct file *filep, const char *buff, size_t count, loff_t *offp )
+ssize_t my_write(struct file *filep, const char *buff, size_t len, loff_t *offp )
 {
 	/* function to copy user space buffer to kernel space*/
-	if ( copy_from_user(my_data,buff,count) != 0 )
+    char *my_data = malloc(len);
+	if ( copy_from_user(my_data, buff,count) != 0 )
 		printk( "Userspace -> kernel copy failed!\n" );
-    printString(buff, count);
+    printString(my_data, len);
 	return 0;
 }
-
 
 static int chardev_init(void)
 {
