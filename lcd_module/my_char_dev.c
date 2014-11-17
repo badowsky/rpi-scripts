@@ -20,7 +20,7 @@
 #include <linux/gpio.h>
 #include <linux/delay.h>
 
-#include <linux/fs.h> //fops
+//#include <linux/fs.h> //fops
 
 //#include <asm/uaccess.h> //copy_from_user
 
@@ -170,43 +170,43 @@ char my_data[80]="hi from kernel";
 
 
 
-int my_open(struct inode *inode, struct file *filep)
-{
-	/*MOD_INC_USE_COUNT;*/ /* increments usage count of module */
-	return 0;
-}
-
-int my_release(struct inode *inode, struct file *filep)
-{
-	/*MOD_DEC_USE_COUNT;*/ /* decrements usage count of module */
-	return 0;
-}
-
-ssize_t my_read(struct file *filep, char *buff, size_t count, loff_t *offp )
-{
-	/* function to copy kernel space buffer to user space*/
-	//if ( copy_to_user(buff,my_data,strlen(my_data)) != 0 )
-		printk( "Kernel -> userspace copy failed!\n" );
-	return 0;//strlen(my_data);
-
-}
-
-ssize_t my_write(struct file *filep, const char *buff, size_t len, loff_t *offp )
-{
-	/* function to copy user space buffer to kernel space*/
-    //char *my_data = (char*)kmalloc(len, GFP_KERNEL);
-	//if ( copy_from_user(my_data, buff, len) != 0 )
-		printk( "Userspace -> kernel copy failed!\n" );
-    //printString(my_data, len);
-	return 0;
-}
-
-struct file_operations my_fops={
-	open: my_open,
-	read: my_read,
-	write: my_write,
-	release: my_release,
-};
+//int my_open(struct inode *inode, struct file *filep)
+//{
+//	/*MOD_INC_USE_COUNT;*/ /* increments usage count of module */
+//	return 0;
+//}
+//
+//int my_release(struct inode *inode, struct file *filep)
+//{
+//	/*MOD_DEC_USE_COUNT;*/ /* decrements usage count of module */
+//	return 0;
+//}
+//
+//ssize_t my_read(struct file *filep, char *buff, size_t count, loff_t *offp )
+//{
+//	/* function to copy kernel space buffer to user space*/
+//	//if ( copy_to_user(buff,my_data,strlen(my_data)) != 0 )
+//		printk( "Kernel -> userspace copy failed!\n" );
+//	return 0;//strlen(my_data);
+//
+//}
+//
+//ssize_t my_write(struct file *filep, const char *buff, size_t len, loff_t *offp )
+//{
+//	/* function to copy user space buffer to kernel space*/
+//    //char *my_data = (char*)kmalloc(len, GFP_KERNEL);
+//	//if ( copy_from_user(my_data, buff, len) != 0 )
+//		printk( "Userspace -> kernel copy failed!\n" );
+//    //printString(my_data, len);
+//	return 0;
+//}
+//
+//struct file_operations my_fops={
+//	open: my_open,
+//	read: my_read,
+//	write: my_write,
+//	release: my_release,
+//};
 
 static int __init chardev_init(void)
 {
