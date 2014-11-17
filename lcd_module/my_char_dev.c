@@ -198,7 +198,8 @@ static int __init chardev_init(void)
 {
     int ret = 0;
     printk(KERN_INFO "LCD char_dev registration.");
-    ret = gpio_request_array(lcd, ARRAY_SIZE(lcd));
+    ret = gpio_request_one(PIN_E, GPIOF_OUT_INIT_LOW, "LCD_E");
+    //ret = gpio_request_array(lcd, ARRAY_SIZE(lcd));
     if (ret) {
         printk(KERN_ERR "Unable to request GPIOs: %d\n", ret);
     }
@@ -211,11 +212,12 @@ static int __init chardev_init(void)
 static void __exit chardev_exit(void)
 {
     int i;
-    for(i = 0; i < ARRAY_SIZE(lcd); i++) {
-        gpio_set_value(lcd[i].gpio, 0);
-    }
+    //for(i = 0; i < ARRAY_SIZE(lcd); i++) {
+//        gpio_set_value(lcd[i].gpio, 0);
+//    }
     // unregister all GPIOs
-    gpio_free_array(lcd, ARRAY_SIZE(lcd));
+    //gpio_free_array(lcd, ARRAY_SIZE(lcd));
+    gpio_free(PIN_E);
     printk("LCD char_dev unregistration.");
     unregister_chrdev(222, "my_device");
     return ;
