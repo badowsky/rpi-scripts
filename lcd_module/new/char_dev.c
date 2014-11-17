@@ -161,7 +161,7 @@ void lcd_init(void)
 
 void setCursorPos(int x, int y){
     //if ((x >= 0) and (x <= 7)) and (y == 0 or y == 1){
-        unsigned char pos_cmd = CURS_BASE + x + (y * 16);
+        char pos_cmd = CURS_BASE + x + (y * 16);
         writeByte(pos_cmd, MODE_CMD);
     //}else{
         //printk( "Wrong cursor position sent: x = %d, y = %d", x, y);
@@ -184,13 +184,14 @@ void printString(char data[], size_t count)
 }
 
 void printMessage(void)
-{   setCursorPos(1, 0);
+{   //setCursorPos(0, 0);
     writeByte(CMD_CLEAR, MODE_CMD);
+    writeByte(0x80, MODE_CMD);
     int i;
     for(i=0;i<current_len;i++){
         printk(KERN_INFO "Petla %c", Message[i]);
         printChar(Message[i]);
-        if(i == 15) setCursorPos(0, 1);
+        if(i == 15) writeByte(0x0C, MODE_CMD);
     }
 }
 
