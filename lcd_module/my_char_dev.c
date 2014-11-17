@@ -1,16 +1,10 @@
-#include<linux/module.h>
-#include<linux/init.h>
-#include<linux/kernel.h>
-#include<linux/slab.h>
+#include <linux/module.h>	
+#include <linux/kernel.h>
+#include <linux/sched.h>
 #include <linux/time.h>
+#include <linux/init.h>
 #include <linux/gpio.h>
 #include <linux/delay.h>
-#include <linux/fs.h>
-
-#include <linux/errno.h>
-#include <asm/current.h>
-#include <asm/segment.h>
-#include <asm/uaccess.h>
 
 #define PIN_RS              27
 #define PIN_E               17
@@ -198,11 +192,11 @@ static int __init chardev_init(void)
 {
     int ret = 0;
     printk(KERN_INFO "LCD char_dev registration.");
-    //ret = gpio_request_one(PIN_E, GPIOF_OUT_INIT_LOW, "LCD_E");
+    ret = gpio_request_one(PIN_E, GPIOF_OUT_INIT_LOW, "LCD_E");
     //ret = gpio_request_array(lcd, ARRAY_SIZE(lcd));
-//    if (ret) {
-//        printk(KERN_ERR "Unable to request GPIOs: %d\n", ret);
-//    }
+    if (ret) {
+        printk(KERN_ERR "Unable to request GPIOs: %d\n", ret);
+    }
 
     if(register_chrdev(222, "my_device", &my_fops)){
         printk(KERN_ERR "Register filed.");
@@ -217,7 +211,7 @@ static void __exit chardev_exit(void)
 //    }
     // unregister all GPIOs
     //gpio_free_array(lcd, ARRAY_SIZE(lcd));
-    //gpio_free(PIN_E);
+    gpio_free(PIN_E);
     printk("LCD char_dev unregistration.");
     unregister_chrdev(222, "my_device");
     return ;
