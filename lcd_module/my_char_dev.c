@@ -54,7 +54,7 @@
 //ssize_t my_read(struct file *filep,char *buff,size_t count,loff_t *offp );
 //ssize_t my_write(struct file *filep,const char *buff,size_t len,loff_t *offp );
 //
-char my_data[80]="hi from kernel";
+//char my_data[80]="hi from kernel";
 //void write4Bits(char half_byte);
 //void enablePulse(void);
 //void writeByte(unsigned char byte, int mode);
@@ -214,9 +214,9 @@ static int __init chardev_init(void)
     printk(KERN_INFO "LCD char_dev registration.");
     ret = gpio_request_one(PIN_E, GPIOF_OUT_INIT_LOW, "LCD_E");
     //ret = gpio_request_array(lcd, ARRAY_SIZE(lcd));
-    if (ret) {
-        printk(KERN_ERR "Unable to request GPIOs: %d\n", ret);
-    }
+//    if (ret) {
+//        printk(KERN_ERR "Unable to request GPIOs: %d\n", ret);
+//    }
 
 //    if(register_chrdev(222, "my_device", &my_fops)){
 //        printk(KERN_ERR "Register filed.");
@@ -236,7 +236,7 @@ static void __exit chardev_exit(void)
     //unregister_chrdev(222, "my_device");
     return ;
 }
-
+MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Mateusz Badowski");
 MODULE_DESCRIPTION("LCD 2x16 Char Device");
 
