@@ -150,7 +150,7 @@ void printString(const char *buff, size_t count)
         printk(KERN_INFO "Petla %d", i);
         //printChar(*(buff+i));
     }
-    );
+    
     
 }
 
