@@ -1,17 +1,3 @@
-//#include<linux/module.h>
-//#include<linux/init.h>
-//#include<linux/kernel.h>
-//#include<linux/slab.h>
-//#include <linux/time.h>
-//#include <linux/gpio.h>
-//#include <linux/delay.h>
-//#include <linux/fs.h>
-//
-//#include <linux/errno.h>
-//#include <asm/current.h>
-//#include <asm/segment.h>
-//#include <asm/uaccess.h>
-
 #include <linux/module.h>	
 #include <linux/kernel.h>
 #include <linux/sched.h>
@@ -65,12 +51,12 @@ void printString(const char *buff, size_t count);
 void my_delay(int us);
 
 static struct gpio lcd[] = {
-{ 27, GPIOF_OUT_INIT_LOW, "LCD_RS" },
-{ 17, GPIOF_OUT_INIT_LOW, "LCD_E" },
-{ 11, GPIOF_OUT_INIT_LOW, "LCD_D4" },
-{ 9, GPIOF_OUT_INIT_LOW, "LCD_D5" },
-{ 10, GPIOF_OUT_INIT_LOW, "LCD_D6" },
-{ 22, GPIOF_OUT_INIT_LOW, "LCD_D7" },
+{ PIN_RS, GPIOF_OUT_INIT_LOW, "LCD_RS" },
+{ PIN_E, GPIOF_OUT_INIT_LOW, "LCD_E" },
+{ PIN_D4, GPIOF_OUT_INIT_LOW, "LCD_D4" },
+{ PIN_D5, GPIOF_OUT_INIT_LOW, "LCD_D5" },
+{ PIN_D6, GPIOF_OUT_INIT_LOW, "LCD_D6" },
+{ PIN_D7, GPIOF_OUT_INIT_LOW, "LCD_D7" },
 };
 
 
@@ -158,11 +144,13 @@ void printChar(char character)
 }
 
 void printString(const char *buff, size_t count)
-{   //int len = count -1;
+{   int len = count -1;
     int i;
-    for(i=0;i<count;i++){
+    for(i=0;i<len;i++){
+        printk(KERN_INFO "Petla %d", i);
         printChar(*(buff+i));
     }
+    );
     
 }
 
@@ -186,7 +174,7 @@ ssize_t my_read(struct file *filep, char *buff, size_t count, loff_t *offp )
 {
 	/* function to copy kernel space buffer to user space*/
 	if ( copy_to_user(buff,my_data,strlen(my_data)) != 0 )
-		printk( "Kernel -> userspace copy failed!\n" );
+		printk(KERN_INFO "Kernel -> userspace copy failed!\n" );
 	return 0;//strlen(my_data);
 
 }
@@ -196,7 +184,7 @@ ssize_t my_write(struct file *filep, const char *buff, size_t len, loff_t *offp 
 	/* function to copy user space buffer to kernel space*/
     char *str_data = (char*)kmalloc(len, GFP_KERNEL);
     if ( copy_from_user(str_data, buff, len) != 0 )
-	printk( "Userspace -> kernel copy failed!\n" );
+	printk(KERN_INFO "Userspace -> kernel copy failed!\n" );
     printString(str_data, len);
     return 0;
 }
