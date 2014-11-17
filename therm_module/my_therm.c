@@ -54,7 +54,7 @@ void resetPulse(void){
 	OUT_GPIO(DS_PIN);
 	// pin low for 480 us
 	SET_GPIO_LOW(DS_PIN);
-	my_delay(500);
+	my_delay(1000);
     //SET_GPIO_HIGH(DS_PIN);
     INP_GPIO(DS_PIN);
 }
@@ -170,8 +170,10 @@ static int __init gpiomod_init(void)
         printk(KERN_ERR "Unable to request GPIOs: %d\n", ret);
         return ret;
     }
-	
-    readDeviceAdress();
+	int i;
+	for(i=0;i<10;i++){
+    		readDeviceAdress();
+	}
     return ret;
 }
 /*
