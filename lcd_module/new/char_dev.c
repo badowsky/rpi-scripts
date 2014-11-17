@@ -133,6 +133,7 @@ void writeByte(unsigned char byte, int mode){
 }
 
 char* byteToTwo(char byte){
+        unsigned char i;
         unsigned char *bits = (unsigned char*) kmalloc(3, GFP_KERNEL);
         bits[0]=byte>>4;
         bits[1]=byte<<4;
@@ -296,11 +297,13 @@ device_write(struct file *file,
 {
 	int i;
 
+
 	printk(KERN_INFO "device_write(%p,%d)", file, length);
-        current_len = length -1;
-        
-	for (i = 0; i < lenght && i < BUF_LEN; i++)
+
+
+	for (i = 0; i < length && i < BUF_LEN; i++)
 		get_user(Message[i], buffer + i);
+        current_len = length -1;
 	Message_Ptr = Message;
         printMessage();
 
