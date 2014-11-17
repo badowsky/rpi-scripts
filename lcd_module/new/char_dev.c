@@ -184,12 +184,13 @@ void printString(char data[], size_t count)
 }
 
 void printMessage(void)
-{   
+{   setCursorPos(1, 0);
     writeByte(CMD_CLEAR, MODE_CMD);
     int i;
     for(i=0;i<current_len;i++){
         printk(KERN_INFO "Petla %c", Message[i]);
         printChar(Message[i]);
+        if(i == 7) setCursorPos(0, 1);
     }
 }
 
