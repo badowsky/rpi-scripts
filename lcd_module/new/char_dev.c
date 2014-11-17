@@ -190,7 +190,7 @@ void printMessage(void)
     for(i=0;i<current_len;i++){
         printk(KERN_INFO "Petla %c", Message[i]);
         printChar(Message[i]);
- 
+}
 
 
 /* 
