@@ -7,7 +7,7 @@
 #include <linux/fs.h>
 #include <asm/uaccess.h>	/* for get_user and put_user */
 
-#include "chardev.h"
+#include "char_dev.h"
 #define SUCCESS 0
 #define DEVICE_NAME "char_dev"
 #define BUF_LEN 16
@@ -133,9 +133,9 @@ device_write(struct file *file,
 {
 	int i;
 
-#ifdef DEBUG
-	printk(KERN_INFO "device_write(%p,%s,%d)", file, buffer, length);
-#endif
+
+	printk(KERN_INFO "device_write(%p,%d)", file, length);
+
 
 	for (i = 0; i < length && i < BUF_LEN; i++)
 		get_user(Message[i], buffer + i);
@@ -227,7 +227,6 @@ int device_ioctl(struct inode *inode,	/* see include/linux/fs.h */
 struct file_operations Fops = {
 	.read = device_read,
 	.write = device_write,
-	.ioctl = device_ioctl,
 	.open = device_open,
 	.release = device_release,	/* a.k.a. close */
 };
@@ -270,16 +269,14 @@ int init_module()
  */
 void cleanup_module()
 {
-	int ret;
+	
 
 	/* 
 	 * Unregister the device 
 	 */
-	ret = unregister_chrdev(MAJOR_NUM, DEVICE_NAME);
+	unregister_chrdev(MAJOR_NUM, DEVICE_NAME);
 
 	/* 
 	 * If there's an error, report it 
 	 */
-	if (ret < 0)
-		printk(KERN_ALERT "Error: unregister_chrdev: %d\n", ret);
 }
