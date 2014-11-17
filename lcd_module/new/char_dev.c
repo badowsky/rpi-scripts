@@ -38,6 +38,8 @@ static char Message[BUF_LEN];
 static char *Message_Ptr;
 
 
+static char current_len = 0;
+
 #define PIN_RS              27
 #define PIN_E               17
 #define PIN_D4              11
@@ -78,7 +80,6 @@ void printChar(char character);
 void printString(char data[], size_t count);
 void my_delay(int us);
 
-char str_data[BUF_LEN];
 
 static struct gpio lcd[] = {
 { PIN_RS, GPIOF_OUT_INIT_LOW, "LCD_RS" },
@@ -182,10 +183,11 @@ void printString(char data[], size_t count)
     }    
 }
 
-void printMessage()
-{
+void printMessage(void)
+{   
+    writeByte(CMD_CLEAR);
     int i;
-    for(i=0;i<BUF_LEN;i++){
+    for(i=0;i<current_len;i++){
         printk(KERN_INFO "Petla %d", i);
         printChar(Message[i]);
     }    
@@ -301,7 +303,7 @@ device_write(struct file *file,
 
 	for (i = 0; i < length && i < BUF_LEN; i++)
 		get_user(Message[i], buffer + i);
-
+        current_lenght = length -1;
 	Message_Ptr = Message;
         printMessage();
 
