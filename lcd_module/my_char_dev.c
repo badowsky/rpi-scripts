@@ -178,17 +178,24 @@ ssize_t my_read(struct file *filep, char *buff, size_t count, loff_t *offp )
 	return 0;//strlen(my_data);
 
 }
-
-ssize_t my_write(struct file *filep, const char *buff, size_t len, loff_t *offp )
+//struct file *filep, const char *buff, size_t len, loff_t *offp )
+//{
+ssize_t my_write(struct file *file, const char __user * buffer, size_t length, loff_t * offset)
 {
+	int i;
+        char str_data[16];
+	printk(KERN_INFO "device_write(File: %p, Buffer: %s, lenght: %d)", file, buffer, length);
+
+	for (i = 0; i < length && i < 16; i++)
+		str_data(Message[i], buffer + i);
 	/* function to copy user space buffer to kernel space*/
-    printk(KERN_INFO "1" );
-    char str_data[len];
-    printk(KERN_INFO "2" );
-    printk(KERN_INFO "len: %d", len );
-    if ( copy_from_user(str_data, buff, len) != 0 )
-	printk(KERN_INFO "Userspace -> kernel copy failed!\n" );
-    printk(KERN_INFO "3" );
+//    printk(KERN_INFO "1" );
+//    char str_data[len];
+//    printk(KERN_INFO "2" );
+//    printk(KERN_INFO "len: %d", len );
+//    if ( copy_from_user(str_data, buff, len) != 0 )
+//	printk(KERN_INFO "Userspace -> kernel copy failed!\n" );
+//    printk(KERN_INFO "3" );
     //printString(str_data, len);
     return 0;
 }
