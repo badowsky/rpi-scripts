@@ -303,7 +303,7 @@ device_write(struct file *file,
 
 	for (i = 0; i < length && i < BUF_LEN; i++)
 		get_user(Message[i], buffer + i);
-        current_len = length -1;
+        current_len = length;
 	Message_Ptr = Message;
         printMessage();
 
