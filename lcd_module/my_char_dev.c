@@ -20,9 +20,11 @@
 #include <linux/gpio.h>
 #include <linux/delay.h>
 
-#include <linux/fs.h>
+#include <linux/fs.h> //fops
 
-#include <asm/uaccess.h
+#include <asm/uaccess.h> //copy_from_user
+
+#include<linux/slab.h> //kmalloc
 
 #define PIN_RS              27
 #define PIN_E               17
