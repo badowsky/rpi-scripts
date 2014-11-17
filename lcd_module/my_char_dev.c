@@ -236,7 +236,7 @@ static void __exit chardev_exit(void)
     //unregister_chrdev(222, "my_device");
     return ;
 }
-MODULE_LICENSE("GPL");
+
 MODULE_AUTHOR("Mateusz Badowski");
 MODULE_DESCRIPTION("LCD 2x16 Char Device");
 
