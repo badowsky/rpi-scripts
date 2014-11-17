@@ -50,6 +50,7 @@ inline void my_delay(int n){
     udelay(n);
 }
 void resetPulse(void){
+<<<<<<< HEAD
     printk(KERN_INFO "Sending reset pulse.");
 	OUT_GPIO(DS_PIN);
 	// pin low for 480 us
@@ -57,57 +58,61 @@ void resetPulse(void){
 	my_delay(1000);
     //SET_GPIO_HIGH(DS_PIN);
     INP_GPIO(DS_PIN);
+=======
+
+>>>>>>> 40b846fbd52e5ccaa255eadfd707c8829f431c50
 }
 
 int  initialize(void)
-{
+{	int presence;
     printk(KERN_INFO "Trying to initialize.");
+	printk(KERN_INFO "Sending reset pulse.");
+	OUT_GPIO(DS_PIN);
+	SET_GPIO_LOW(DS_PIN);
+	my_delay(500);
+	SET_GPIO_HIGH(DS_PIN);
+	my_delay(70);
+	INP_GPIO(DS_PIN);
+	presence = GPIO_READ(DS_PIN);
+	my_delay(1000);
 
-    resetPulse();
-    my_delay(60);
-    if(GPIO_READ(DS_PIN)==0)
-    {   
-        my_delay(300);//Sprobowac dla 420
-        printk(KERN_INFO "Initialize succesfull.\n");
-        return 1;
-    }
-    printk(KERN_INFO "Initialize failed.\n");
-    return 0;
+	//If presence is 0 then return 1 otherwise 0, so 1 is good...
+	return presence ? 0 : 1;
 }
 
 // Simple io functions
-inline void writeBit(int bit){
-    SET_GPIO_LOW(DS_PIN);
-	if(bit)
+inline void writeBit(int bit)
+{
+    if(bit)
     {
-        my_delay(1);
+    	SET_GPIO_LOW(DS_PIN);
+        my_delay(6);
         SET_GPIO_HIGH(DS_PIN);
-        my_delay(59);
+        my_delay(64);
 
     }
     else
     {
+    	SET_GPIO_LOW(DS_PIN);
         my_delay(60);
         SET_GPIO_HIGH(DS_PIN);
+        my_delay(10);
     }
 }
 
 inline int readBit(void)
-{
-    OUT_GPIO(DS_PIN);
-    // PIN LOW
-    SET_GPIO_LOW(DS_PIN);
-    my_delay(5);
-    // set INPUT
-    INP_GPIO(DS_PIN);
-    my_delay(10);
-    if(GPIO_READ(DS_PIN)!=0){
-        my_delay(45);
-        return 1;
-    }
-    my_delay(45);
-    return 0;
-    
+{	int bit;
+	OUT_GPIO(DS_PIN);
+
+	SET_GPIO_LOW(DS_PIN);
+	my_delay(6);
+	SET_GPIO_HIGH(DS_PIN);
+	my_delay(9);
+	
+	INP_GPIO(DS_PIN);
+	bit = GPIO_READ(DS_PIN);
+	my_delay(55);
+	return bit ? 1 : 0;
 }
 
 void writeByte(unsigned char value)
@@ -122,9 +127,7 @@ void writeByte(unsigned char value)
         writeBit(bit);
         Mask*=2;
     }
-
-
-    my_delay(100);
+    //my_delay(100);//why?
 }
 
 unsigned char readByte(void)
@@ -144,17 +147,17 @@ unsigned char readByte(void)
     return data;
 }
 
-void readDeviceAdress(void){
-    unsigned char addres[8];
+void readDeviceID(void){
+    unsigned char adress[8];
     int i;
     if (initialize()){
         writeByte(READ_ROM);
         for(i=0;i<8;i++){
-            addres[i] = readByte();
+            adress[i] = readByte();
         }
     }
     for(i=0;i<8;i++){
-        printk(KERN_INFO "%x", addres[i]);
+        printk(KERN_INFO "%x", adress[i]);
     }
 }
 /*
@@ -172,7 +175,12 @@ static int __init gpiomod_init(void)
     }
 	int i;
 	for(i=0;i<10;i++){
+<<<<<<< HEAD
     		readDeviceAdress();
+=======
+		printk(KERN_INFO "Try number: %d\n", i+1);
+    	readDeviceID();
+>>>>>>> 40b846fbd52e5ccaa255eadfd707c8829f431c50
 	}
     return ret;
 }
