@@ -23,8 +23,8 @@ def check_modules():
 		os.system("sudo modprobe w1-therm")
 
 check_modules()
-outsideTemp_str = str(check_temp(outsideTempID))
-insideTemp_str = str(check_temp(insideTempID))
+outsideTemp_str = ("%.2f" % check_temp(outsideTempID))
+insideTemp_str = ("%.2f" % check_temp(insideTempID))
 con = MySQLdb.connect("mbadowski.pl", "badowsky_OWadmin", "ba1805di", "badowsky_house_one_wire")
 query_out = 'INSERT into `2` (value) values (\"{tempOut}\")'.format(tempOut=outsideTemp_str)
 query_in = 'INSERT into `1` (value) values (\"{tempIn}\")'.format(tempIn=insideTemp_str)
@@ -51,4 +51,4 @@ c.execute(query_out)
 #if str(last_in_temp) != insideTemp_str:
 c.execute(query_in)
 #	print("Wysylam wewnatrzna.")
-
+os.system("echo \"" + "Wewn: " + insideTemp_str + " C   " + "Zewn:  " + outsideTemp_str + " C"  + "\" > /dev/char_dev")

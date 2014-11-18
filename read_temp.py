@@ -21,6 +21,6 @@ def check_modules():
                 os.system("sudo modprobe w1-gpio")
                 os.system("sudo modprobe w1-therm")
 
-#check_modules()
-print("Temperature outside: " + str(check_temp(outsideTempID)) + "\xb0C")
-print("Temperature inside: " + str(check_temp(insideTempID)) + "\xb0C")
+check_modules()
+print("Temperature outside: " + str(check_temp(outsideTempID)) + " C")
+print("Temperature inside: " + str(check_temp(insideTempID)) + " C")
