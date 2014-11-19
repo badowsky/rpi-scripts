@@ -2,8 +2,6 @@
 #include <linux/init.h>
 #include <linux/kmod.h>
 
-MODULE_LICENSE( "GPL" );
-
 
 static int umh_test( void )
 {
@@ -30,3 +28,7 @@ static void __exit mod_exit_func( void )
 
 module_init( mod_entry_func );
 module_exit( mod_exit_func );
+
+MODULE_LICENSE( "GPL" );
+MODULE_AUTHOR("Mateusz Badowski");
+MODULE_DESCRIPTION("LCD 2x16 Char Device");
