@@ -188,8 +188,8 @@ void printMessage(void)
     writeByte(0x80, MODE_CMD);
     int i;
     for(i=0;i<current_len;i++){
-        printk(KERN_INFO "Petla %c", Message[i]);
-        printChar(Message[i]);
+        printk(KERN_INFO "Prining %d sign: %c\n", i, *(Message_Ptr+i));
+        printChar(*(Message_Ptr+i));
         if(i == 15) writeByte(0xC0, MODE_CMD);
     }
 }
@@ -238,8 +238,7 @@ static int device_release(struct inode *inode, struct file *file)
  * device file attempts to read from it.
  */
 static ssize_t device_read(struct file *file,	/* see include/linux/fs.h   */
-			   char __user * buffer,	/* buffer to be
-							 * filled with data */
+			   char __user * buffer,	/* buffer to be filled with data */
 			   size_t length,	/* length of the buffer     */
 			   loff_t * offset)
 {
@@ -300,7 +299,10 @@ device_write(struct file *file,
 
 	printk(KERN_INFO "device_write(%p,%d)", file, length);
 
-
+    if(*(buffer) == '#') {
+        lcd_init();
+        return 0;
+    }
 	for (i = 0; i < length && i < BUF_LEN; i++)
 		get_user(Message[i], buffer + i);
         current_len = length -1;

@@ -1,8 +1,8 @@
 /*
-* Basic kernel module using a timer and GPIOs to flash a LED.
+* Basic kernel module to read DS18B20 temperature sensor.
 *
 * Author:
-* Stefan Wendler (devnull@kaltpost.de)
+* Mateusz Badowski (kontakt@mbadowski.pl)
 *
 * This software is licensed under the terms of the GNU General Public
 * License version 2, as published by the Free Software Foundation, and
@@ -22,29 +22,54 @@
 #include <linux/gpio.h>
 #include <linux/delay.h>
 
+// -------------------------- GPIO OPERATIONS -------------------------- //
 
+// set GPIO pin g as input 
+#define GPIO_DIR_INPUT(g) *(gpio+((g)/10)) &= ~(7<<(((g)%10)*3))
+// set GPIO pin g as output 
+#define GPIO_DIR_OUTPUT(g) *(gpio+((g)/10)) |=  (1<<(((g)%10)*3))
+// get logical value from gpio pin g 
+#define GPIO_READ_PIN(g) (*(gpio+13) & (1<<(g))) && 1
+// sets   bits which are 1 ignores bits which are 0 
+#define GPIO_SET_PIN(g)	*(gpio+7) = 1<<g;
+// clears bits which are 1 ignores bits which are 0 
+#define GPIO_CLEAR_PIN(g) *(gpio+10) = 1<<g;
+
+//OLD
 #define INP_GPIO(g)         gpio_direction_input(g)
 #define OUT_GPIO(g)         gpio_direction_output(g, 1)
 #define SET_GPIO_HIGH(g)    gpio_set_value(g, 1)
 #define SET_GPIO_LOW(g)     gpio_set_value(g, 0)
 #define GPIO_READ(g)        gpio_get_value(g)
 
-// ROM COMMANDS
+// --------------------------------------------------------------------- //
+
+// --------- ROM COMMANDS ---------- //
+
 #define SEARCH_ROM			0xF0
 #define MATCH_ROM			0x55
 #define READ_ROM			0x33
-#define SKIP_ROM       			0xCC
-#define ALARM_SEARCH			0xEC
+#define SKIP_ROM       		0xCC
+#define ALARM_SEARCH		0xEC
 
-// FUNCTION COMMANDS
-#define CONVERT_T       		0x44
-#define READ_SCRATCHPAD                 0xBE
-#define WRITE_SCRATCHPAD                0x4E
-#define COPY_SCRATCHPAD                 0x48
+// --------------------------------- //
+
+// ------- FUNCTION COMMANDS ------- //
+
+#define CONVERT_T       	0x44
+#define READ_SCRATCHPAD     0xBE
+#define WRITE_SCRATCHPAD    0x4E
+#define COPY_SCRATCHPAD     0x48
 #define RECAL_E				0xB8
-#define READ_POWER_SUPPLY		0xB4
+#define READ_POWER_SUPPLY   0xB4
+
+// --------------------------------- //
+
+// ------- SETTINGS ------- //
 
 #define DS_PIN	10
+
+// ------------------------ //
 
 inline void my_delay(int n){
     udelay(n);
