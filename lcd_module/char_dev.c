@@ -299,20 +299,21 @@ device_write(struct file *file,
 
 	printk(KERN_INFO "device_write(%p,%d)", file, length);
 
-    if(*(buffer) == '#') {
+    if(*(buffer) == '#' && lenght == 2) {
         lcd_init();
-        return 0;
+        return 1;
     }
 	for (i = 0; i < length && i < BUF_LEN; i++)
 		get_user(Message[i], buffer + i);
-        current_len = length -1;
+        current_len = i;
 	Message_Ptr = Message;
         printMessage();
 
 	/* 
 	 * Again, return the number of input characters used 
+	 * decresed by one because of resending if return < sent
 	 */
-	return i;
+	return length-1;
 }
 
 
