@@ -9,7 +9,7 @@
 static int __init callmodule_init(void)
 {
     int ret = 0;
-    char userprog[] = "echo", "cosx", ">", "/dev/char_dev";
+    char userprog[] = {"echo", "cosx", ">", "/dev/char_dev"};
     char *argv[] = {userprog, "2", NULL };
     char *envp[] = {"HOME=/", "PATH=/sbin:/usr/sbin:/bin:/usr/bin", NULL };
 
