@@ -3,6 +3,7 @@
 #include <linux/kmod.h>
 
 
+
 static int umh_test( void )
 {
   struct subprocess_info *sub_info;
@@ -12,7 +13,7 @@ static int umh_test( void )
         "TERM=linux",
         "PATH=/sbin:/bin:/usr/sbin:/usr/bin", NULL };
 
-  sub_info = call_usermodehelper_setup( argv[0], argv, envp, UMH_WAIT_PROC );
+  sub_info = call_usermodehelper_setup( argv[0], argv, envp, GFP_ATOMIC );
   if (sub_info == NULL) return -ENOMEM;
 
   return call_usermodehelper_exec( sub_info, UMH_WAIT_PROC );
