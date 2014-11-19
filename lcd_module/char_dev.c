@@ -310,7 +310,7 @@ device_write(struct file *file,
 	 * Again, return the number of input characters used 
 	 * decresed by one because of resending if return < sent
 	 */
-    printk(KERN_INFO "Returning: %d)", i)
+    printk(KERN_INFO "Returning: %d)", i);
 	return i;
 }
 
