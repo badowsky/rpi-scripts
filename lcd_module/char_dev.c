@@ -299,10 +299,10 @@ device_write(struct file *file,
 
 
 	printk(KERN_INFO "device_write(length: %d)", length);
-
-	for (i = 0; i < length && i < BUF_LEN; i++)
+    current_len = length - 1;
+	for (i = 0; i < current_len && i < BUF_LEN; i++)
 		get_user(Message[i], buffer + i);
-        current_len = i;
+         = i;
 	Message_Ptr = Message;
         printMessage();
 
@@ -310,8 +310,8 @@ device_write(struct file *file,
 	 * Again, return the number of input characters used 
 	 * decresed by one because of resending if return < sent
 	 */
-    printk(KERN_INFO "Returning: %d)", i);
-	return i;
+    printk(KERN_INFO "Returning: %d)", length);
+	return length;
 }
 
 
