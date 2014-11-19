@@ -5,8 +5,6 @@
 MODULE_LICENSE( "GPL" );
 
 
-
-
 static int umh_test( void )
 {
   char *argv[] = { "/home/pi/rpi-scripts/special_button_module/run_pressed.sh", NULL };
@@ -17,8 +15,6 @@ static int umh_test( void )
 
   return call_usermodehelper( argv[0], argv, envp, UMH_WAIT_PROC );
 }
-
-
 
 
 static int __init mod_entry_func( void )
