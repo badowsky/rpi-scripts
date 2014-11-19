@@ -298,7 +298,7 @@ device_write(struct file *file,
 	int i;
 
 
-	printk(KERN_INFO "device_write(length: %d)", file, length);
+	printk(KERN_INFO "device_write(length: %d)", length);
 
 	for (i = 0; i < length && i < BUF_LEN; i++)
 		get_user(Message[i], buffer + i);
