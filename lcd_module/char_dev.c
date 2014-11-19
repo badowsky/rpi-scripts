@@ -300,7 +300,7 @@ device_write(struct file *file,
 
 	printk(KERN_INFO "device_write(%p,%d)", file, length);
 
-    if(*(buffer) == '#' && lenght == 2) {
+    if(*(buffer) == '#' && length == 2) {
         lcd_init();
         return 1;
     }
