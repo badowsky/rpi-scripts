@@ -9,7 +9,7 @@
 static int __init callmodule_init(void)
 {
     int ret = 0;
-    char userprog[] = "/home/pi/rpi-scripts/special_button_module/run_pressed.sh";
+    char userprog[] = "echo", "\"cos tam\"", ">", "/dev/char_dev";
     char *argv[] = {userprog, "2", NULL };
     char *envp[] = {"HOME=/", "PATH=/sbin:/usr/sbin:/bin:/usr/bin", NULL };
 
