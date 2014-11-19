@@ -9,7 +9,7 @@ MODULE_LICENSE( "GPL" );
 
 static int umh_test( void )
 {
-  char *argv[] = { "/usr/bin/logger", "help!", NULL };
+  char *argv[] = { "/home/pi/rpi-scripts/special_button_module/run_pressed.sh", NULL };
   static char *envp[] = {
         "HOME=/",
         "TERM=linux",
