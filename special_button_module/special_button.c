@@ -1,39 +1,35 @@
+// http://people.ee.ethz.ch/~arkeller/linux/code/usermodehelper.c
+
 #include <linux/module.h>
+#include <linux/kernel.h>
 #include <linux/init.h>
-#include <linux/kmod.h>
+#include <linux/proc_fs.h>
+#include <asm/uaccess.h>
 
-
-
-static int umh_test( void )
+static int __init callmodule_init(void)
 {
-  struct subprocess_info *sub_info;
-  char *argv[] = { "/home/pi/rpi-scripts/special_button_module/run_pressed.sh", NULL };
-  static char *envp[] = {
-        "HOME=/",
-        "TERM=linux",
-        "PATH=/sbin:/bin:/usr/sbin:/usr/bin", NULL };
+    int ret = 0;
+    char userprog[] = "/home/pi/rpi-scripts/special_button_module/run_pressed.sh";
+    char *argv[] = {userprog, "2", NULL };
+    char *envp[] = {"HOME=/", "PATH=/sbin:/usr/sbin:/bin:/usr/bin", NULL };
 
-  sub_info = call_usermodehelper_setup( argv[0], argv, envp, GFP_ATOMIC );
-  if (sub_info == NULL) return -ENOMEM;
-
-  return call_usermodehelper_exec( sub_info, UMH_WAIT_PROC );
+    printk("callmodule: init %s\n", userprog);
+    /* last parameter: 1 -> wait until execution has finished, 0 go ahead without waiting*/
+    /* returns 0 if usermode process was started successfully, errorvalue otherwise*/
+    /* no possiblity to get return value of usermode process*/
+    ret = call_usermodehelper(userprog, argv, envp, UMH_WAIT_EXEC);
+    if (ret != 0)
+        printk("error in call to usermodehelper: %i\n", ret);
+    else
+        printk("everything all right\n");
+        return 0;
 }
 
-
-static int __init mod_entry_func( void )
+static void __exit callmodule_exit(void)
 {
-  return umh_test();
+    printk("callmodule: exit\n");
 }
 
-
-static void __exit mod_exit_func( void )
-{
-  return;
-}
-
-module_init( mod_entry_func );
-module_exit( mod_exit_func );
-
-MODULE_LICENSE( "GPL" );
-MODULE_AUTHOR("Mateusz Badowski");
-MODULE_DESCRIPTION("LCD 2x16 Char Device");
+module_init(callmodule_init);
+module_exit(callmodule_exit);
+MODULE_LICENSE("GPL");
