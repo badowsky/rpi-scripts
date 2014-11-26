@@ -37,7 +37,8 @@
 
 //OLD
 #define INP_GPIO(g)         gpio_direction_input(g)
-#define OUT_GPIO(g)         gpio_direction_output(g, 1)
+#define OUT_GPIO_HIGH(g)    gpio_direction_output(g, 1)
+#define OUT_GPIO_LOW(g)     gpio_direction_output(g, 0)
 #define SET_GPIO_HIGH(g)    gpio_set_value(g, 1)
 #define SET_GPIO_LOW(g)     gpio_set_value(g, 0)
 #define GPIO_READ(g)        gpio_get_value(g)
@@ -75,10 +76,10 @@ inline void my_delay(int n){
     udelay(n);
 }
 void resetPulse(void){
-    printk(KERN_INFO "Sending reset pulse.");
-	OUT_GPIO(DS_PIN);
+    //printk(KERN_INFO "Sending reset pulse.");
+	OUT_GPIO_LOW(DS_PIN);
 	// pin low for 480 us
-	SET_GPIO_LOW(DS_PIN);
+	SET_GPIO_LOW(DS_PIN);//dunno if this is needed
 	my_delay(1000);
     //SET_GPIO_HIGH(DS_PIN);
     INP_GPIO(DS_PIN);
@@ -87,10 +88,10 @@ void resetPulse(void){
 
 int  initialize(void)
 {	int presence;
-    printk(KERN_INFO "Trying to initialize.");
-	printk(KERN_INFO "Sending reset pulse.");
-	OUT_GPIO(DS_PIN);
-	SET_GPIO_LOW(DS_PIN);
+    //printk(KERN_INFO "Trying to initialize.");
+	//printk(KERN_INFO "Sending reset pulse.");
+	OUT_GPIO_LOW(DS_PIN);
+	//SET_GPIO_LOW(DS_PIN);
 	my_delay(500);
 	SET_GPIO_HIGH(DS_PIN);
 	my_delay(70);
@@ -108,9 +109,9 @@ inline void writeBit(int bit)
     if(bit)
     {
     	SET_GPIO_LOW(DS_PIN);
-        my_delay(6);
+        my_delay(6);//release after max 15us
         SET_GPIO_HIGH(DS_PIN);
-        my_delay(64);
+        my_delay(64);//leave at least 45us for reading
 
     }
     else
@@ -123,15 +124,16 @@ inline void writeBit(int bit)
 }
 
 inline int readBit(void)
-{	int bit;
-	OUT_GPIO(DS_PIN);
+{	//sample should end after 15us since start of pulling low
+    int bit;
+	OUT_GPIO_LOW(DS_PIN);
 
-	SET_GPIO_LOW(DS_PIN);
-	my_delay(6);
-	SET_GPIO_HIGH(DS_PIN);
-	my_delay(9);
-	
+	//SET_GPIO_LOW(DS_PIN);
+	my_delay(3);
+	SET_GPIO_HIGH(DS_PIN);//dunno if this is needed
 	INP_GPIO(DS_PIN);
+	mydelay(10); //previous delay + this delay should be < 15
+ 
 	bit = GPIO_READ(DS_PIN);
 	my_delay(55);
 	return bit ? 1 : 0;
@@ -142,7 +144,7 @@ void writeByte(unsigned char value)
     unsigned char Mask=1;
     int i;
     int bit;
-    OUT_GPIO(DS_PIN);
+    OUT_GPIO_HIGH(DS_PIN);
     for(i=0;i<8;i++)
     {
         bit = (value & Mask)!=0;
