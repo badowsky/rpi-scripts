@@ -215,7 +215,7 @@ int letConvertTemp(unsigned char rom[8])
         
         for(i=0;i<8;i++)
         {
-            my_delay(100000);//wait 100ms - min Tconv
+            mdelay(100);//wait 100ms - min Tconv
             if(readBit())
                 return 1;
         }
