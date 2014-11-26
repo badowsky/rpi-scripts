@@ -193,10 +193,10 @@ void readDeviceID(void){
     unsigned char adress[8];
     int i;
     if (initialize()){
-        writeByte(SKIP_ROM);
-        //for(i=0;i<8;i++){
-        //    adress[i] = readByte();
-        //}
+        writeByte(READ_ROM);
+        for(i=0;i<8;i++){
+            adress[i] = readByte();
+        }
     }
     for(i=0;i<8;i++){
         printk(KERN_INFO "adress[%d]: %x\n", i, adress[i]);
@@ -227,10 +227,10 @@ int readScratchPad(unsigned char rom[8])
 {
     if(initialize())
     {   int i;
-        writeByte(MATCH_ROM);
-        for(i=0;i<8;i++){
-            writeByte(rom[i]);
-        }
+        writeByte(SKIP_ROM);
+        //for(i=0;i<8;i++){
+        //    writeByte(rom[i]);
+        //}
         writeByte(READ_SCRATCHPAD);
         
         for(i=0;i<9;i++)
