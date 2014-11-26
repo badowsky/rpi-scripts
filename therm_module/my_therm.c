@@ -89,6 +89,12 @@
 
 // ------------------------ //
 
+
+
+ScratchPad[9];
+
+
+
 inline void my_delay(int n){
     udelay(n);
 }
@@ -195,6 +201,49 @@ void readDeviceID(void){
     for(i=0;i<8;i++){
         printk(KERN_INFO "adress[%d]: %x\n", i, adress[i]);
     }
+}
+
+int letConvertTemp(unsigned char rom[8])
+{
+    if(initialize())
+    {
+        writeByte(MATCH_ROM);
+        writeByte(rom);
+        writeByte(CONVERT_T);
+        int i;
+        for(i=0;i<8;i++)
+        {
+            my_delay(100000);//wait 100ms - min Tconv
+            if(readBit())
+                return 1;
+        }
+    }
+    return 0;
+}
+
+int readScratchPad(unsigned char rom[8])
+{
+    if(initialize())
+    {
+        writeByte(MATCH_ROM);
+        writeByte(rom);
+        writeByte(READ_SCRATCHPAD);
+        int i;
+        for(i=0;i<9;i++)
+        {
+            ScratchPad[i]=readByte();
+        }
+        return 1;
+    }
+    return 0;
+}
+
+unsigned char readTemp(unsigned char rom[8]){
+    letConvertTemp(rom);
+    readScratchPad(rom);
+    int i;
+    for(i=0;i<9;i++)
+           printk(KERN_INFO "ScratchPad[%d]: %02X\n", i, ScratchPad[loop]);
 }
 /*
 * Module init function
