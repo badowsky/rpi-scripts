@@ -208,7 +208,9 @@ int letConvertTemp(unsigned char rom[8])
     if(initialize())
     {
         writeByte(MATCH_ROM);
-        writeByte(rom);
+        for(i=0;i<8;i++){
+            writeByte(rom[i]);
+        }
         writeByte(CONVERT_T);
         int i;
         for(i=0;i<8;i++)
@@ -226,7 +228,9 @@ int readScratchPad(unsigned char rom[8])
     if(initialize())
     {
         writeByte(MATCH_ROM);
-        writeByte(rom);
+        for(i=0;i<8;i++){
+            writeByte(rom[i]);
+        }
         writeByte(READ_SCRATCHPAD);
         int i;
         for(i=0;i<9;i++)
@@ -243,7 +247,7 @@ unsigned char readTemp(unsigned char rom[8]){
     readScratchPad(rom);
     int i;
     for(i=0;i<9;i++)
-           printk(KERN_INFO "ScratchPad[%d]: %02X\n", i, ScratchPad[loop]);
+           printk(KERN_INFO "ScratchPad[%d]: %02X\n", i, ScratchPad[i]);
 }
 /*
 * Module init function
@@ -263,6 +267,8 @@ static int __init gpiomod_init(void)
 		printk(KERN_INFO "Try number: %d\n", i+1);
     	readDeviceID();
 	}
+    unsigned char rom[8] = {0x28, 0x8e, 0x29, 0x2f, 0x03, 0x00, 0x00, 0x1a};
+    readTemp(rom);
     return ret;
 }
 /*
