@@ -193,10 +193,10 @@ void readDeviceID(void){
     unsigned char adress[8];
     int i;
     if (initialize()){
-        writeByte(READ_ROM);
-        for(i=0;i<8;i++){
-            adress[i] = readByte();
-        }
+        writeByte(SKIP_ROM);
+        //for(i=0;i<8;i++){
+        //    adress[i] = readByte();
+        //}
     }
     for(i=0;i<8;i++){
         printk(KERN_INFO "adress[%d]: %x\n", i, adress[i]);
@@ -207,10 +207,10 @@ int letConvertTemp(unsigned char rom[8])
 {
     if(initialize())
     {   int i;
-        writeByte(MATCH_ROM);
-        for(i=0;i<8;i++){
-            writeByte(rom[i]);
-        }
+        writeByte(SKIP_ROM);
+        //for(i=0;i<8;i++){
+        //    writeByte(rom[i]);
+        //}
         writeByte(CONVERT_T);
         
         for(i=0;i<8;i++)
