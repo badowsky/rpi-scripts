@@ -25,20 +25,37 @@
 // -------------------------- GPIO OPERATIONS -------------------------- //
 
 // set GPIO pin g as input 
-#define GPIO_DIR_INPUT(g) *(gpio+((g)/10)) &= ~(7<<(((g)%10)*3))
+//#define GPIO_DIR_INPUT(g) *(gpio+((g)/10)) &= ~(7<<(((g)%10)*3))
 // set GPIO pin g as output 
-#define GPIO_DIR_OUTPUT(g) *(gpio+((g)/10)) |=  (1<<(((g)%10)*3))
+//#define GPIO_DIR_OUTPUT(g) *(gpio+((g)/10)) |=  (1<<(((g)%10)*3))
 // get logical value from gpio pin g 
-#define GPIO_READ_PIN(g) (*(gpio+13) & (1<<(g))) && 1
+///#define GPIO_READ_PIN(g) (*(gpio+13) & (1<<(g))) && 1
 // sets   bits which are 1 ignores bits which are 0 
-#define GPIO_SET_PIN(g)	*(gpio+7) = 1<<g;
+//#define GPIO_SET_PIN(g)	*(gpio+7) = 1<<g;
 // clears bits which are 1 ignores bits which are 0 
-#define GPIO_CLEAR_PIN(g) *(gpio+10) = 1<<g;
+//#define GPIO_CLEAR_PIN(g) *(gpio+10) = 1<<g;
+
+
+// set GPIO pin g as input 
+//#define INP_GPIO(g) *(gpio+((g)/10)) &= ~(7<<(((g)%10)*3))
+// set GPIO pin g as output 
+//#define OUT_GPIO(g) *(gpio+((g)/10)) |=  (1<<(((g)%10)*3))
+//#define OUT_GPIO_HIGH(g)    OUT_GPIO(g); SET_GPIO_HIGH(g)
+//#define OUT_GPIO_LOW(g)    OUT_GPIO(g); SET_GPIO_LOW(g)
+
+// get logical value from gpio pin g 
+//#define GPIO_READ(g) (*(gpio+13) & (1<<(g))) && 1
+// sets   bits which are 1 ignores bits which are 0 
+//#define SET_GPIO_HIGH(g)	*(gpio+7) = 1<<g;
+// clears bits which are 1 ignores bits which are 0 
+//#define SET_GPIO_LOW(g) *(gpio+10) = 1<<g;
+
 
 //OLD
 #define INP_GPIO(g)         gpio_direction_input(g)
 #define OUT_GPIO_HIGH(g)    gpio_direction_output(g, 1)
 #define OUT_GPIO_LOW(g)     gpio_direction_output(g, 0)
+
 #define SET_GPIO_HIGH(g)    gpio_set_value(g, 1)
 #define SET_GPIO_LOW(g)     gpio_set_value(g, 0)
 #define GPIO_READ(g)        gpio_get_value(g)
@@ -78,10 +95,9 @@ inline void my_delay(int n){
 void resetPulse(void){
     //printk(KERN_INFO "Sending reset pulse.");
 	OUT_GPIO_LOW(DS_PIN);
-	// pin low for 480 us
-	SET_GPIO_LOW(DS_PIN);//dunno if this is needed
-	my_delay(1000);
-    //SET_GPIO_HIGH(DS_PIN);
+	//SET_GPIO_LOW(DS_PIN);
+	my_delay(500);
+	SET_GPIO_HIGH(DS_PIN);
     INP_GPIO(DS_PIN);
 
 }
@@ -89,13 +105,9 @@ void resetPulse(void){
 int  initialize(void)
 {	int presence;
     //printk(KERN_INFO "Trying to initialize.");
-	//printk(KERN_INFO "Sending reset pulse.");
-	OUT_GPIO_LOW(DS_PIN);
-	//SET_GPIO_LOW(DS_PIN);
-	my_delay(500);
-	SET_GPIO_HIGH(DS_PIN);
+    resetPulse();
+
 	my_delay(70);
-	INP_GPIO(DS_PIN);
 	presence = GPIO_READ(DS_PIN);
 	my_delay(1000);
 
