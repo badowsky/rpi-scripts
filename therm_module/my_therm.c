@@ -206,13 +206,13 @@ void readDeviceID(void){
 int letConvertTemp(unsigned char rom[8])
 {
     if(initialize())
-    {
+    {   int i;
         writeByte(MATCH_ROM);
         for(i=0;i<8;i++){
             writeByte(rom[i]);
         }
         writeByte(CONVERT_T);
-        int i;
+        
         for(i=0;i<8;i++)
         {
             my_delay(100000);//wait 100ms - min Tconv
@@ -226,13 +226,13 @@ int letConvertTemp(unsigned char rom[8])
 int readScratchPad(unsigned char rom[8])
 {
     if(initialize())
-    {
+    {   int i;
         writeByte(MATCH_ROM);
         for(i=0;i<8;i++){
             writeByte(rom[i]);
         }
         writeByte(READ_SCRATCHPAD);
-        int i;
+        
         for(i=0;i<9;i++)
         {
             ScratchPad[i]=readByte();
