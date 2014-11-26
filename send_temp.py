@@ -1,9 +1,14 @@
 import re 
 import os
-import MySQLdb
+import requests
 
-outsideTempID = "28-0000032f098e" 
-insideTempID = "28-0000017815da" 
+OUTSIDE_TEMP_ID = "28-0000032f098e" 
+INSIDE_TEMP_ID = "28-0000017815da" 
+OUTSIDE_TABLE_ID = 2 
+INSIDE_TABLE_ID = 1
+PUT_TEMP_URL = "http://mbadowski.pl/ownet/db/dbUtils/putTemperature.php"
+GET_TEMP_URL = "http://mbadowski.pl/ownet/db/dbUtils/getTemperature.php"
+
 
 def check_temp(temp_id):
 	file = open("/sys/bus/w1/devices/" + temp_id + "/w1_slave", "r")
@@ -22,33 +27,32 @@ def check_modules():
 		os.system("sudo modprobe w1-gpio")
 		os.system("sudo modprobe w1-therm")
 
+def putTemperature(temp_id, value):
+	params = { 'id': temp_id, 'value': value }
+	r = requests.post(PUT_TEMP_URL, data=params)
+	return r.text
+
+def getTemperature(temp_id, mode="last"):
+	params = {'id': temp_id, 'mode': mode}
+	r = requests.get(GET_TEMP_URL, params=params)
+	return r.text
+
+
+
 check_modules()
-outsideTemp_str = ("%.2f" % check_temp(outsideTempID))
-insideTemp_str = ("%.2f" % check_temp(insideTempID))
-con = MySQLdb.connect("mbadowski.pl", "badowsky_OWadmin", "ba1805di", "badowsky_house_one_wire")
-query_out = 'INSERT into `2` (value) values (\"{tempOut}\")'.format(tempOut=outsideTemp_str)
-query_in = 'INSERT into `1` (value) values (\"{tempIn}\")'.format(tempIn=insideTemp_str)
-query_out_last = 'Select value from `2` where date = (Select MAX(date) from `2`)'
-query_in_last = 'Select value from `1` where date = (Select MAX(date) from `1`)'
+outsideTemp_str = ("%.1f" % check_temp(OUTSIDE_TEMP_ID))
+insideTemp_str = ("%.1f" % check_temp(INSIDE_TEMP_ID))
 
-c = con.cursor()
-c.execute(query_out_last)
-last_out_temp = c.fetchall()[0][0]
 
-c.execute(query_in_last)
-last_in_temp = c.fetchall()[0][0]
+last_out_temp = ("%.2f" % float(getTemperature(OUTSIDE_TABLE_ID, "last")))
+last_in_temp = ("%.2f" % float(getTemperature(INSIDE_TABLE_ID, "last")))
+
+putTemperature(OUTSIDE_TABLE_ID, outsideTemp_str)
+putTemperature(INSIDE_TABLE_ID, insideTemp_str)
 
 print("Ostatnia temperatura na zawnatrz: " + str(last_out_temp) )
 print("Ostatnia temperatura wewnatrz: " + str(last_in_temp) )
 print("Aktualna na zewnatrz: " + outsideTemp_str )
 print("Aktualna wewnatrz: " + insideTemp_str )
 
-
-#if str(last_out_temp) != outsideTemp_str:
-c.execute(query_out)
-#	print("Wysylam zewnatrzna.")
-
-#if str(last_in_temp) != insideTemp_str:
-c.execute(query_in)
-#	print("Wysylam wewnatrzna.")
-os.system("echo \"" + "Wewn: " + insideTemp_str + " C   " + "Zewn:  " + outsideTemp_str + " C"  + "\" > /dev/char_dev")
+os.system("echo \"" + "W:" + insideTemp_str + " C " + "Z:" + outsideTemp_str + " C"  + "\" > /dev/char_dev")

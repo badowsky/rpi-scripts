@@ -141,10 +141,10 @@ inline int readBit(void)
 	OUT_GPIO_LOW(DS_PIN);
 
 	//SET_GPIO_LOW(DS_PIN);
-	my_delay(3);
+	my_delay(1);
 	SET_GPIO_HIGH(DS_PIN);//dunno if this is needed
 	INP_GPIO(DS_PIN);
-	mydelay(10); //previous delay + this delay should be < 15
+	my_delay(13); //previous delay + this delay should be < 15
  
 	bit = GPIO_READ(DS_PIN);
 	my_delay(55);
@@ -193,7 +193,7 @@ void readDeviceID(void){
         }
     }
     for(i=0;i<8;i++){
-        printk(KERN_INFO "%x", adress[i]);
+        printk(KERN_INFO "adress[%d]: %x\n", i, adress[i]);
     }
 }
 /*
