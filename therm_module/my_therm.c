@@ -174,8 +174,8 @@ void writeByte(unsigned char value)
 
 double convertTemp(unsigned char lsb, unsigned char msb){
 
-    unsigned long long reading = lsb + (msb << 8);
-    unsigned long long inv = reading & 0xf000;
+    unsigned short  reading = lsb + (msb << 8);
+    unsigned short inv = reading & 0xf000;
     double val = 0.0;
     //printf("Converting temperature from:\nMSB LSB: %x%x \n", msb, lsb);
     if (inv == 0xf000){
