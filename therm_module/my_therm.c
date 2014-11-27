@@ -176,13 +176,13 @@ int convertTemp(unsigned char lsb, unsigned char msb){
 
     unsigned short  reading = lsb + (msb << 8);
     unsigned short inv = reading & 0xf000;
-    int val = 0.0;
+    int val = 0;
     //printf("Converting temperature from:\nMSB LSB: %x%x \n", msb, lsb);
     if (inv == 0xf000){
         reading = (reading ^ 0xffff) + 1;
-        val = - reading * 0.0625;
+        //val = - reading * 0.0625;
     }else{
-    	val =  reading * 0.0625;
+    	//val =  reading * 0.0625;
     }
 
     return val;
