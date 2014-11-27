@@ -269,7 +269,7 @@ unsigned char readTemp(unsigned char rom[8]){
     unsigned char msb = ScratchPad[2];
     EXPORT_SYMBOL_NOVERS(lsb);
     EXPORT_SYMBOL_NOVERS(msb);
-    printk(KERN_INFO "Converted temperature: %f\n from lsb: %02X, msb: %02X", convertTemp(lsb, msb), lsb, msb);
+    //printk(KERN_INFO "Converted temperature: %f\n from lsb: %02X, msb: %02X", convertTemp(lsb, msb), lsb, msb);
 /*
 * Module init function
 */
