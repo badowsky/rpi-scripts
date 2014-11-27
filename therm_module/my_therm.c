@@ -179,7 +179,7 @@ double convertTemp(unsigned char lsb, unsigned char msb){
     double val = 0.0;
     //printf("Converting temperature from:\nMSB LSB: %x%x \n", msb, lsb);
     if (inv == 0xf000){
-        //reading = (reading ^ 0xffff) + 1;
+        reading = (reading ^ 0xffff) + 1;
         //val = -(double) reading / 16.0;
     }else{
     	//val = (double) reading / 16.0;
