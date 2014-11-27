@@ -268,7 +268,11 @@ static int __init gpiomod_init(void)
     	readDeviceID();
 	}
     unsigned char rom[8] = {0x28, 0x8e, 0x29, 0x2f, 0x03, 0x00, 0x00, 0x1a};
-    readTemp(rom);
+    for(i=0;i<10;i++){
+		printk(KERN_INFO "Try number: %d\n", i+1);
+    	readTemp(rom);
+	}
+    
     return ret;
 }
 /*
