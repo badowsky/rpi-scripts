@@ -215,7 +215,7 @@ void readDeviceID(void){
         }
     }
     for(i=0;i<8;i++){
-        printk(KERN_INFO "adress[%d]: %x\n", i, adress[i]);
+        //printk(KERN_INFO "adress[%d]: %x\n", i, adress[i]);
     }
 }
 
@@ -280,17 +280,17 @@ static int __init gpiomod_init(void)
     // register, turn off
     ret = gpio_request_one(DS_PIN, GPIOF_OUT_INIT_LOW, "MOJ_DS");
     if (ret) {
-        printk(KERN_ERR "Unable to request GPIOs: %d\n", ret);
+        //printk(KERN_ERR "Unable to request GPIOs: %d\n", ret);
         return ret;
     }
 	int i;
 	for(i=0;i<10;i++){
-		printk(KERN_INFO "Try number: %d\n", i+1);
+		//printk(KERN_INFO "Try number: %d\n", i+1);
     	readDeviceID();
 	}
     unsigned char rom[8] = {0x28, 0x8e, 0x29, 0x2f, 0x03, 0x00, 0x00, 0x1a};
     for(i=0;i<10;i++){
-		printk(KERN_INFO "Try number: %d\n", i+1);
+		//printk(KERN_INFO "Try number: %d\n", i+1);
     	readTemp(rom);
 	}
     
