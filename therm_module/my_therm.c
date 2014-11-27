@@ -172,17 +172,17 @@ void writeByte(unsigned char value)
     //my_delay(100);//why?
 }
 
-double convertTemp(unsigned char lsb, unsigned char msb){
+int convertTemp(unsigned char lsb, unsigned char msb){
 
     unsigned short  reading = lsb + (msb << 8);
     unsigned short inv = reading & 0xf000;
-    double val = 0.0;
+    int val = 0.0;
     //printf("Converting temperature from:\nMSB LSB: %x%x \n", msb, lsb);
     if (inv == 0xf000){
         reading = (reading ^ 0xffff) + 1;
-        val = (double) reading;
+        val = - reading * 0.0625;
     }else{
-    	val = 0;
+    	val =  reading * 0.0625;
     }
 
     return val;
