@@ -189,6 +189,22 @@ unsigned char readByte(void)
     return data;
 }
 
+double convertTemp(unsigned char lsb, unsigned char msb){
+
+    unsigned short reading = lsb + (msb << 8);
+    unsigned short inv = reading & 0xf000;
+    double val = 0.0;
+    //printf("Converting temperature from:\nMSB LSB: %x%x \n", msb, lsb);
+    if (inv == 0xf000){
+        reading = (reading ^ 0xffff) + 1;
+        val = -(double) reading / 16.0;
+    }else{
+    	val = (double) reading / 16.0;
+    }
+
+    return val;
+}
+
 void readDeviceID(void){
     unsigned char adress[8];
     int i;
@@ -248,7 +264,10 @@ unsigned char readTemp(unsigned char rom[8]){
     int i;
     for(i=0;i<9;i++)
            printk(KERN_INFO "ScratchPad[%d]: %02X\n", i, ScratchPad[i]);
-}
+    }
+    unsigned char lsb = ScratchPad[3];
+    unsigned char msb = ScratchPad[2];
+    printk(KERN_INFO "Converted temperature: %f", convertTemp(lsb, msb));
 /*
 * Module init function
 */
