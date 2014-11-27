@@ -264,10 +264,6 @@ unsigned char readTemp(unsigned char rom[8]){
     int i;
     for(i=0;i<9;i++)
            printk(KERN_INFO "ScratchPad[%d]: %02X\n", i, ScratchPad[i]);
-    
-    unsigned char lsb = ScratchPad[3];
-    unsigned char msb = ScratchPad[2];
-    printk(KERN_INFO "Converted temperature: %f", convertTemp(lsb, msb));
 }
 /*
 * Module init function
