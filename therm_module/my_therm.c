@@ -380,7 +380,7 @@ static int device_open(struct inode *inode, struct file *file)
     if (read_temp == ERROR){
         sprintf(temp, "Failed.");
     }else{
-        sprintf(temp, "%d", readTemp(rom));
+        sprintf(temp, "%d", read_temp);
     }
     tempPtr = temp;
     return SUCCESS;
