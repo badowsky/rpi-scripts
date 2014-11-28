@@ -445,7 +445,7 @@ static ssize_t device_write(struct file *file,
         
     
     
-    romPtr = rom;
+    //romPtr = rom;
 
 
     /* 
