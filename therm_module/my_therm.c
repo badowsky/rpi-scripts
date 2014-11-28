@@ -378,19 +378,18 @@ static int device_open(struct inode *inode, struct file *file)
     Device_Open++;
     int read_temp_in = readTemp(rom_in);
     int read_temp_out = readTemp(rom_out);
-    sprintf(temp, "IN: ");
+    //char temp_in[12]
     if (read_temp_in == ERROR){
-        sprintf(temp, "Failed.");
+        sprintf(tempPtr, "IN: Failed.");
     }else{
-        sprintf(temp, "%d", read_temp_in);
+        sprintf(tempPtr, "IN: %d", read_temp_in);
     }
-    sprintf(temp, "\nOUT: ");
     if (read_temp_out == ERROR){
-        sprintf(temp, "Failed.");
+        sprintf(tempPtr+12, "\nOUT: Failed.");
     }else{
-        sprintf(temp, "%d", read_temp_out);
+        sprintf(tempPtr+12, "\nOUT: %d", read_temp_out);
     }
-    tempPtr = temp;
+    //tempPtr = temp;
     return SUCCESS;
 }
 
