@@ -385,7 +385,7 @@ static int device_open(struct inode *inode, struct file *file)
         sprintf(temp, "%d", read_temp_in);
     }
     sprintf(temp, "\nOUT: ");
-    if (read_temp_in == ERROR){
+    if (read_temp_out == ERROR){
         sprintf(temp, "Failed.");
     }else{
         sprintf(temp, "%d", read_temp_out);
