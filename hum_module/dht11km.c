@@ -87,7 +87,7 @@ static struct timeval lasttv = {0, 0};
 static spinlock_t lock;
 
 // Forward declarations
-static int read_dht11(struct inode *, struct file *);
+static int device_open(struct inode *, struct file *);
 static int close_dht11(struct inode *, struct file *);
 static ssize_t device_read(struct file *, char *, size_t, loff_t *);
 static void clear_interrupts(void);
@@ -108,7 +108,7 @@ static int driverno = 80;		//Default driver number
 //Operations that can be performed on the device
 static struct file_operations fops = {
 	.read = device_read,
-	.open = read_dht11,
+	.open = device_open,
 	.release = close_dht11
 };
 
@@ -228,7 +228,7 @@ static int __init dht11_init_module(void)
 	int result;
 	int i;
 
-	// check for valid gpio pin number
+	// check for valid gpio pin number - do wyrabania
 	result = 0;
 	for(i = 0; (i < ARRAY_SIZE(valid_gpio_pins)) && (result != 1); i++) {
 		if(gpio_pin == valid_gpio_pins[i]) 
@@ -238,8 +238,9 @@ static int __init dht11_init_module(void)
 	if (result != 1) {
 		result = -EINVAL;
 		printk(KERN_ERR DHT11_DRIVER_NAME ": invalid GPIO pin specified!\n");
-		goto exit_rpi;
+		return result;
 	}
+    // do wyrabania
 	
     result = register_chrdev(driverno, DHT11_DRIVER_NAME, &fops);
 
@@ -252,13 +253,10 @@ static int __init dht11_init_module(void)
 
 	result = init_port();
 	if (result < 0)
-		goto exit_rpi;
+		return result;
 
 	return 0;
 
-exit_rpi:
-
-	return result;
 }
 
 static void __exit dht11_exit_module(void)
@@ -275,8 +273,8 @@ static void __exit dht11_exit_module(void)
 	printk(DHT11_DRIVER_NAME ": cleaned up module\n");
 }
 
-// Called when a process wants to read the dht11 "cat /dev/dht11"
-static int read_dht11(struct inode *inode, struct file *file)
+// Called when a process wants to open the dht11
+static int device_open(struct inode *inode, struct file *file)
 {
 	char result[3];			//To say if the result is trustworthy or not
 	int retry = 0;
@@ -289,7 +287,7 @@ static int read_dht11(struct inode *inode, struct file *file)
 	Device_Open++;
 
 	// Take data low for min 18mS to start up DHT11
-    //printk(KERN_INFO DHT11_DRIVER_NAME " Start setup (read_dht11)\n");
+    //printk(KERN_INFO DHT11_DRIVER_NAME " Start setup (device_open)\n");
 
 start_read:
 	started = 0;

@@ -21,6 +21,9 @@
 #include <linux/init.h>
 #include <linux/gpio.h>
 #include <linux/delay.h>
+#include <asm/div64.h>
+#include <asm/types.h>
+#include <linux/types.h>
 
 // -------------------------- GPIO OPERATIONS -------------------------- //
 
@@ -85,32 +88,61 @@
 
 // ------- SETTINGS ------- //
 
+#define MAX_READS_SCRATCHPAD	10
+#define MAX_READS_DEV_ID	10
 #define DS_PIN	10
 
 // ------------------------ //
 
 
 
-ScratchPad[9];
+u8 ScratchPad[9];
 
+static u8 w1_crc8_table[] = {
+         0, 94, 188, 226, 97, 63, 221, 131, 194, 156, 126, 32, 163, 253, 31, 65,
+         157, 195, 33, 127, 252, 162, 64, 30, 95, 1, 227, 189, 62, 96, 130, 220,
+         35, 125, 159, 193, 66, 28, 254, 160, 225, 191, 93, 3, 128, 222, 60, 98,
+         190, 224, 2, 92, 223, 129, 99, 61, 124, 34, 192, 158, 29, 67, 161, 255,
+         70, 24, 250, 164, 39, 121, 155, 197, 132, 218, 56, 102, 229, 187, 89, 7,
+         219, 133, 103, 57, 186, 228, 6, 88, 25, 71, 165, 251, 120, 38, 196, 154,
+         101, 59, 217, 135, 4, 90, 184, 230, 167, 249, 27, 69, 198, 152, 122, 36,
+         248, 166, 68, 26, 153, 199, 37, 123, 58, 100, 134, 216, 91, 5, 231, 185,
+         140, 210, 48, 110, 237, 179, 81, 15, 78, 16, 242, 172, 47, 113, 147, 205,
+         17, 79, 173, 243, 112, 46, 204, 146, 211, 141, 111, 49, 178, 236, 14, 80,
+         175, 241, 19, 77, 206, 144, 114, 44, 109, 51, 209, 143, 12, 82, 176, 238,
+         50, 108, 142, 208, 83, 13, 239, 177, 240, 174, 76, 18, 145, 207, 45, 115,
+         202, 148, 118, 40, 171, 245, 23, 73, 8, 86, 180, 234, 105, 55, 213, 139,
+         87, 9, 235, 181, 54, 104, 138, 212, 149, 203, 41, 119, 244, 170, 72, 22,
+         233, 183, 85, 11, 136, 214, 52, 106, 43, 117, 151, 201, 74, 20, 246, 168,
+         116, 42, 200, 150, 21, 75, 169, 247, 182, 232, 10, 84, 215, 137, 107, 53
+ };
 
+static struct file_operations fops = {
+	.read = device_read,
+	.open = device_open,
+	.release = device_close
+};
+
+// -------------------------- IO --------------------------- //
 
 inline void my_delay(int n){
+
     udelay(n);
+
 }
 void resetPulse(void){
-    //printk(KERN_INFO "Sending reset pulse.");
+
 	OUT_GPIO_LOW(DS_PIN);
-	//SET_GPIO_LOW(DS_PIN);
 	my_delay(500);
 	SET_GPIO_HIGH(DS_PIN);
     INP_GPIO(DS_PIN);
 
 }
 
-int  initialize(void)
-{	int presence;
-    //printk(KERN_INFO "Trying to initialize.");
+u8  initialize(void){
+
+    u8 presence;
+
     resetPulse();
 
 	my_delay(70);
@@ -121,9 +153,9 @@ int  initialize(void)
 	return presence ? 0 : 1;
 }
 
-// Simple io functions
-inline void writeBit(int bit)
-{
+
+inline void writeBit(int bit){
+
     if(bit)
     {
     	SET_GPIO_LOW(DS_PIN);
@@ -141,27 +173,27 @@ inline void writeBit(int bit)
     }
 }
 
-inline int readBit(void)
-{	//sample should end after 15us since start of pulling low
+inline int readBit(void){
+
+    //sample should end after 15us since start of pulling low
     int bit;
 	OUT_GPIO_LOW(DS_PIN);
-
-	//SET_GPIO_LOW(DS_PIN);
-	my_delay(1);
+	my_delay(6);
 	SET_GPIO_HIGH(DS_PIN);//dunno if this is needed
 	INP_GPIO(DS_PIN);
-	my_delay(13); //previous delay + this delay should be < 15
+	my_delay(9); //previous delay + this delay should be < 15
  
 	bit = GPIO_READ(DS_PIN);
 	my_delay(55);
 	return bit ? 1 : 0;
 }
 
-void writeByte(unsigned char value)
-{
+void writeByte(unsigned char value){
+
     unsigned char Mask=1;
     int i;
     int bit;
+
     OUT_GPIO_HIGH(DS_PIN);
     for(i=0;i<8;i++)
     {
@@ -169,30 +201,12 @@ void writeByte(unsigned char value)
         writeBit(bit);
         Mask*=2;
     }
-    //my_delay(100);//why?
 }
 
-double convertTemp(unsigned char lsb, unsigned char msb){
+u8 readByte(void){
 
-    unsigned u16  reading = lsb + (msb << 8);
-    unsigned u16 inv = reading & 0xf000;
-    double val = 0.0;
-    //printf("Converting temperature from:\nMSB LSB: %x%x \n", msb, lsb);
-    if (inv == 0xf000){
-        reading = (reading ^ 0xffff) + 1;
-        val = (double) reading;
-    }else{
-    	val = 0;
-    }
-
-    return val;
-}
-
-unsigned char readByte(void)
-{
-
-   unsigned char Mask=1;
-   unsigned char data=0;
+   u8 Mask=1;
+   u8 data=0;
 
    int i;
    for(i=0;i<8;i++)
@@ -204,25 +218,64 @@ unsigned char readByte(void)
 
     return data;
 }
+// ------------------------- IO END ------------------------ //
 
 
+// ------------------------- UTILS ------------------------- //
+u8 calculate_crc(u8 * data, int len){
 
-void readDeviceID(void){
-    unsigned char adress[8];
-    int i;
-    if (initialize()){
-        writeByte(READ_ROM);
-        for(i=0;i<8;i++){
-            adress[i] = readByte();
-        }
+    u8 crc = 0;
+
+    while (len--)
+	    crc = w1_crc8_table[crc ^ *data++];
+
+    return crc;
+}
+
+int convertTemp(){
+
+    u16 reading = ScratchPad[0] + (ScratchPad[1] << 8);
+    u16 inv = reading & 0xf000;
+    int val = 0;
+    //printf("Converting temperature from:\nMSB: %x\nLSB: %x\n", ScratchPad[1], ScratchPad[0]);
+    if (inv == 0xf000){
+        reading = (reading ^ 0xffff) + 1;
+        val = - reading*1000/16;
+    }else{
+    	val =  reading*1000/16;
     }
-    for(i=0;i<8;i++){
-        printk(KERN_INFO "adress[%d]: %x\n", i, adress[i]);
+    //printf("Converted temp: %d \n", val);
+    return val;
+}
+// ----------------------- UTILS END ----------------------- //
+
+// ------------------ OPERATIONS ON DEVICE ----------------- //
+void readDeviceID(void){
+
+    u8 address[8];
+    int i, j;
+
+    for(i=0;i<MAX_READS_DEV_ID;i++){
+        if (initialize()){
+
+            writeByte(READ_ROM);
+
+            for(j=0;j<8;j++){
+                address[j] = readByte();
+            }
+        }
+        for(j=0;j<8;j++){
+            printk(KERN_INFO "Address[%d]: %02X\n", j, address[j]);
+        }
+        if(address[7] == calculate_crc(address, 7)){
+            printk(KERN_INFO "Readed address crc(%02X) OK (in %d try).", address[7], i);
+        return;
+        }
     }
 }
 
-int letConvertTemp(unsigned char rom[8])
-{
+int letConvertTemp(unsigned char rom[8]){
+
     if(initialize())
     {   int i;
         writeByte(SKIP_ROM);
@@ -241,67 +294,92 @@ int letConvertTemp(unsigned char rom[8])
     return 0;
 }
 
-int readScratchPad(unsigned char rom[8])
-{
-    if(initialize())
-    {   int i;
-        writeByte(SKIP_ROM);
-        //for(i=0;i<8;i++){
-        //    writeByte(rom[i]);
-        //}
-        writeByte(READ_SCRATCHPAD);
-        
-        for(i=0;i<9;i++)
-        {
-            ScratchPad[i]=readByte();
+int readScratchPad(unsigned char rom[8]){
+
+    int i, j;
+
+    for(i=0; i<MAX_READS_SCRATCHPAD;i++){
+        if(initialize())
+        {	
+            //Address device
+            writeByte(MATCH_ROM);
+            for(j=0;j<8;j++){
+                writeByte(rom[j]);
+            }
+
+            //Tell we want to read scratchpad
+            writeByte(READ_SCRATCHPAD);
+
+            //Read it
+            for(j=0;j<9;j++)
+            {
+                ScratchPad[j]=readByte();
+            }
+
+            //Check if scratchpad was transfered correctly
+            if(ScratchPad[8] == calculate_crc(ScratchPad, 8)){
+                    for(j=0;j<9;j++)
+                            printk(KERN_INFO "ScratchPad[%d]: %02X\n", j, ScratchPad[j]);
+                //If yes, skip other loops and return success
+                printk(KERN_INFO "Readed in %d try.\n", i);
+                return 1;
+            }
         }
-        return 1;
     }
+    //Printed if all loops will be spent without success
+    printk(KERN_INFO "Read scratchpad failed... :<\n");
     return 0;
 }
 
-unsigned char readTemp(unsigned char rom[8]){
-    letConvertTemp(rom);
-    readScratchPad(rom);
-    int i;
-    for(i=0;i<9;i++)
-           printk(KERN_INFO "ScratchPad[%d]: %02X\n", i, ScratchPad[i]);
-    }
-    //unsigned char lsb = ScratchPad[3];
-    //unsigned char msb = ScratchPad[2];
-    //EXPORT_SYMBOL_NOVERS(lsb);
-    //EXPORT_SYMBOL_NOVERS(msb);
-    //printk(KERN_INFO "Converted temperature: %f\n from lsb: %02X, msb: %02X", convertTemp(lsb, msb), lsb, msb);
+// --------------- OPERATIONS ON DEVICE - END --------------- //
+
+int readTemp(unsigned char rom[8]){
+    if (!letConvertTemp(rom))
+        return -100;
+    if (!readScratchPad(rom))
+        return -100;
+
+    int converted_temp = convertTemp();
+
+    printk(KERN_INFO "Converted temperature: %d\n", converted_temp);
+
+    return converted_temp;
+}
+
+
 /*
 * Module init function
 */
-static int __init gpiomod_init(void)
+static int __init my_therm_init(void)
 {
-    int ret = 0;
+    int result = 0;
     printk(KERN_INFO "%s\n", __func__);
     // register, turn off
-    ret = gpio_request_one(DS_PIN, GPIOF_OUT_INIT_LOW, "MOJ_DS");
-    if (ret) {
-        //printk(KERN_ERR "Unable to request GPIOs: %d\n", ret);
-        return ret;
+    result = gpio_request_one(DS_PIN, GPIOF_OUT_INIT_LOW, "MOJ_DS");
+    if (result) {
+        printk(KERN_ERR "Unable to request GPIO: %d\n", result);
+        return result;
     }
-	int i;
-	for(i=0;i<10;i++){
-		//printk(KERN_INFO "Try number: %d\n", i+1);
-    	readDeviceID();
-	}
-    unsigned char rom[8] = {0x28, 0x8e, 0x29, 0x2f, 0x03, 0x00, 0x00, 0x1a};
-    for(i=0;i<10;i++){
-		//printk(KERN_INFO "Try number: %d\n", i+1);
-    	readTemp(rom);
-	}
     
+    //result = register_chrdev(driverno, DRIVER_NAME, &fops);
+
+	//if (result < 0) {
+	//  printk(KERN_ALERT DRIVER_NAME "Registering DS18B20 driver failed with %d\n", result);
+	//  return result;
+	//}
+
+    readDeviceID();
+
+    unsigned char rom[8] = {0x28, 0x8E, 0x09, 0x2F, 0x03, 0x00, 0x00, 0x1A};
+
+    readTemp(rom);
+    //printk(KERN_INFO "test of div(100,2) = %d", do_div(100,2));
     return ret;
 }
 /*
 * Module exit function
 */
-static void __exit gpiomod_exit(void)
+static void __exit my_therm_exit(void)
 {
     printk(KERN_INFO "%s\n", __func__);
     // turn DS_PIN off
@@ -311,7 +389,7 @@ static void __exit gpiomod_exit(void)
 }
 
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Stefan Wendler");
-MODULE_DESCRIPTION("Basic kernel module using a timer and GPIOs to flash a LED.");
-module_init(gpiomod_init);
-module_exit(gpiomod_exit);
+MODULE_AUTHOR("Mateusz Badowski");
+MODULE_DESCRIPTION("Basic kernel module using GPIOs to get DS18B20 measure.");
+module_init(my_therm_init);
+module_exit(my_therm_exit);
