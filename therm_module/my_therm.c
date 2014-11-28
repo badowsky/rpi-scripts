@@ -137,6 +137,7 @@ static u8 w1_crc8_table[] = {
 static int device_open(struct inode *, struct file *);
 static int device_close(struct inode *, struct file *);
 static ssize_t device_read(struct file *, char *, size_t, loff_t *);
+static ssize_t device_write(struct file *file, const char __user * buffer, size_t length, loff_t * offset);
 static struct file_operations fops = {
 	.read = device_read,
 	.open = device_open,
@@ -412,11 +413,10 @@ static ssize_t device_read(struct file *filp,	// see include/linux/fs.h
 	// Return the number of bytes put into the buffer
 	return bytes_read;
 }
-
-device_write(struct file *file,
-	     const char __user * buffer,
-             size_t length,
-             loff_t * offset)
+static ssize_t device_write(struct file *file,
+                            const char __user * buffer,
+                            size_t length,
+                            loff_t * offset)
 {
     int i;
 
