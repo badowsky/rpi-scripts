@@ -108,6 +108,8 @@ static int Device_Open = 0;				// Is device open?  Used to prevent multiple acce
 static char temp[BUF_LEN];				// The msg the device will give when asked 
 static char *tempPtr;
 
+unsigned char rom[8] = {0x28, 0x8E, 0x09, 0x2F, 0x03, 0x00, 0x00, 0x1A};
+
 u8 ScratchPad[9];
 
 static u8 w1_crc8_table[] = {
@@ -365,7 +367,7 @@ static int device_open(struct inode *inode, struct file *file)
         return -EBUSY;
     try_module_get(THIS_MODULE);		//Increase use count
     Device_Open++;
-    sprintf(msg, "%d", readTemp());
+    sprintf(msg, "%d", readTemp(rom));
     tempPtr = temp;
     return SUCCESS;
 }
@@ -432,11 +434,11 @@ static int __init my_therm_init(void)
 
     //readDeviceID();
 
-    unsigned char rom[8] = {0x28, 0x8E, 0x09, 0x2F, 0x03, 0x00, 0x00, 0x1A};
+
 
     //readTemp(rom);
     //printk(KERN_INFO "test of div(100,2) = %d", do_div(100,2));
-    return ret;
+    return result;
 }
 /*
 * Module exit function
