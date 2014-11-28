@@ -105,7 +105,7 @@
 
 
 static int Device_Open = 0;				// Is device open?  Used to prevent multiple access to device 
-static char temp[BUF_LEN];				// The msg the device will give when asked 
+static char temp[BUF_LEN];				// The temp the device will give when asked 
 static char *tempPtr;
 
 unsigned char rom[8] = {0x28, 0x8E, 0x09, 0x2F, 0x03, 0x00, 0x00, 0x1A};
@@ -130,7 +130,10 @@ static u8 w1_crc8_table[] = {
          233, 183, 85, 11, 136, 214, 52, 106, 43, 117, 151, 201, 74, 20, 246, 168,
          116, 42, 200, 150, 21, 75, 169, 247, 182, 232, 10, 84, 215, 137, 107, 53
  };
-
+// Forward declarations
+static int device_open(struct inode *, struct file *);
+static int device_close(struct inode *, struct file *);
+static ssize_t device_read(struct file *, char *, size_t, loff_t *);
 static struct file_operations fops = {
 	.read = device_read,
 	.open = device_open,
@@ -367,7 +370,7 @@ static int device_open(struct inode *inode, struct file *file)
         return -EBUSY;
     try_module_get(THIS_MODULE);		//Increase use count
     Device_Open++;
-    sprintf(msg, "%d", readTemp(rom));
+    sprintf(temp, "%d", readTemp(rom));
     tempPtr = temp;
     return SUCCESS;
 }
