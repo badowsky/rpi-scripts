@@ -100,7 +100,7 @@
 
 
 #define SUCCESS 0
-#define BUF_LEN 10
+#define BUF_LEN 25
 #define ROM_LEN 8
 
 #define ERROR -666
@@ -111,8 +111,8 @@ static int Device_Open = 0;				// Is device open?  Used to prevent multiple acce
 static char temp[BUF_LEN];				// The temp the device will give when asked 
 static char *tempPtr;
 
-//unsigned char rom[ROM_LEN] = {0x28, 0x8E, 0x09, 0x2F, 0x03, 0x00, 0x00, 0x1A};
-unsigned char rom[ROM_LEN] = {0x28, 0xDA, 0x15, 0x78, 0x01, 0x00, 0x00, 0xA4};
+unsigned char rom_out[ROM_LEN] = {0x28, 0x8E, 0x09, 0x2F, 0x03, 0x00, 0x00, 0x1A};
+unsigned char rom_in[ROM_LEN] = {0x28, 0xDA, 0x15, 0x78, 0x01, 0x00, 0x00, 0xA4};
 unsigned char *romPtr;
 u8 ScratchPad[9];
 
@@ -376,11 +376,19 @@ static int device_open(struct inode *inode, struct file *file)
         return -EBUSY;
     try_module_get(THIS_MODULE);		//Increase use count
     Device_Open++;
-    int read_temp = readTemp(rom);
-    if (read_temp == ERROR){
+    int read_temp_in = readTemp(rom_in);
+    int read_temp_out = readTemp(rom_out);
+    sprintf(temp, "IN: ");
+    if (read_temp_in == ERROR){
         sprintf(temp, "Failed.");
     }else{
-        sprintf(temp, "%d", read_temp);
+        sprintf(temp, "%d", read_temp_in);
+    }
+    sprintf(temp, "\nOUT: ");
+    if (read_temp_in == ERROR){
+        sprintf(temp, "Failed.");
+    }else{
+        sprintf(temp, "%d", read_temp_out);
     }
     tempPtr = temp;
     return SUCCESS;
@@ -392,7 +400,7 @@ static ssize_t device_read(struct file *filp,	// see include/linux/fs.h
 			   loff_t * offset)
 {
         //printing rom connected device
-        readDeviceID();
+        //readDeviceID();
 	// Number of bytes actually written to the buffer 
 	int bytes_read = 0;
 
