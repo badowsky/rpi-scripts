@@ -419,7 +419,6 @@ device_write(struct file *file,
              loff_t * offset)
 {
     int i;
-    int current_len=0;
 
     printk(KERN_INFO "device_write(length: %d)", length);
     int current_len = length - 1;
