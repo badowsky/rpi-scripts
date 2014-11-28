@@ -111,7 +111,8 @@ static int Device_Open = 0;				// Is device open?  Used to prevent multiple acce
 static char temp[BUF_LEN];				// The temp the device will give when asked 
 static char *tempPtr;
 
-unsigned char rom[ROM_LEN] = {0x28, 0x8E, 0x09, 0x2F, 0x03, 0x00, 0x00, 0x1A};
+//unsigned char rom[ROM_LEN] = {0x28, 0x8E, 0x09, 0x2F, 0x03, 0x00, 0x00, 0x1A};
+unsigned char rom[ROM_LEN] = {0x28, 0xDA, 0x15, 0x78, 0x01, 0x00, 0x00, 0x4A};
 unsigned char *romPtr;
 u8 ScratchPad[9];
 
@@ -418,19 +419,19 @@ static ssize_t device_write(struct file *file,
                             size_t length,
                             loff_t * offset)
 {
-    int i, j;
-    int buffer_index = i*2+j;
-    unsigned char string_rom[2];
-    unsigned char *string_romPtr;
-    printk(KERN_INFO "device_write(length: %d)", length);
-    int current_len = length - 1;
-    for (i = 0; buffer_index < current_len && buffer_index < BUF_LEN; i++){
-        for(j = 0; j<2; j++){
-            get_user(string_rom[j], buffer + buffer_index);
-        }
-        string_romPtr=string_rom;
-        rom[i] = (unsigned char)kstrtol(string_romPtr, NULL, 16);
-    }
+    //int i, j;
+    //int buffer_index = i*2+j;
+    //unsigned char string_rom[2];
+    //unsigned char *string_romPtr;
+    //printk(KERN_INFO "device_write(length: %d)", length);
+    //int current_len = length - 1;
+    //for (i = 0; buffer_index < current_len && buffer_index < BUF_LEN; i++){
+    //    for(j = 0; j<2; j++){
+    //        get_user(string_rom[j], buffer + buffer_index);
+    //    }
+    //    string_romPtr=string_rom;
+    //    rom[i] = (unsigned char)kstrtol(string_romPtr, NULL, 16);
+    //}
 
  
         
