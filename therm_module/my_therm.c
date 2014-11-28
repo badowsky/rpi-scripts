@@ -26,7 +26,6 @@
 #include <linux/types.h>
 #include <linux/fs.h>
 #include <asm/uaccess.h>
-#include <include/linux/kernel.h>
 
 // -------------------------- GPIO OPERATIONS -------------------------- //
 
