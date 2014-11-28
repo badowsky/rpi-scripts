@@ -58,7 +58,7 @@
 // include RPi harware specific constants 
 #include <mach/hardware.h>
 
-#define DHT11_DRIVER_NAME "dht11"
+#define DRIVER_NAME "dht11"
 #define RBUF_LEN 256
 #define SUCCESS 0
 #define BUF_LEN 80		// Max length of the message from the device 
@@ -112,8 +112,6 @@ static struct file_operations fops = {
 	.release = close_dht11
 };
 
-// Possible valid GPIO pins
-int valid_gpio_pins[] = { 0, 1, 4, 8, 7, 9, 10, 11, 14, 15, 17, 18, 21, 22, 23,	24, 25 };
 
 volatile unsigned *gpio;
 
@@ -165,7 +163,7 @@ static irqreturn_t irq_handler(int i, void *blah, struct pt_regs *regs)
 				bytecount++;
 				}
 			//if(bytecount == 5)
-			//	printk(KERN_INFO DHT11_DRIVER_NAME "Result: %d, %d, %d, %d, %d\n", dht[0], dht[1], dht[2], dht[3], dht[4]);
+			//	printk(KERN_INFO DRIVER_NAME "Result: %d, %d, %d, %d, %d\n", dht[0], dht[1], dht[2], dht[3], dht[4]);
 			}
 		}
 	return IRQ_HANDLED;
@@ -176,17 +174,17 @@ static int setup_interrupts(void)
 	int result;
 	unsigned long flags;
 
-	result = request_irq(INTERRUPT_GPIO0, (irq_handler_t) irq_handler, 0, DHT11_DRIVER_NAME, (void*) gpio);
+	result = request_irq(INTERRUPT_GPIO0, (irq_handler_t) irq_handler, 0, DRIVER_NAME, (void*) gpio);
 
 	switch (result) {
 	case -EBUSY:
-		printk(KERN_ERR DHT11_DRIVER_NAME ": IRQ %d is busy\n", INTERRUPT_GPIO0);
+		printk(KERN_ERR DRIVER_NAME ": IRQ %d is busy\n", INTERRUPT_GPIO0);
 		return -EBUSY;
 	case -EINVAL:
-		printk(KERN_ERR DHT11_DRIVER_NAME ": Bad irq number or handler\n");
+		printk(KERN_ERR DRIVER_NAME ": Bad irq number or handler\n");
 		return -EINVAL;
 	default:
-		printk(KERN_INFO DHT11_DRIVER_NAME	": Interrupt %04x obtained\n", INTERRUPT_GPIO0);
+		printk(KERN_INFO DRIVER_NAME	": Interrupt %04x obtained\n", INTERRUPT_GPIO0);
 		break;
 	};
 
@@ -205,72 +203,40 @@ static int setup_interrupts(void)
 	return 0;
 }
 
+// Clear the GPIO edge detect interrupts
+static void clear_interrupts(void)
+{
+	unsigned long flags;
+
+	spin_lock_irqsave(&lock, flags);
+
+	// GPREN0 GPIO Pin Rising Edge Detect Disable 
+	GPIO_INT_RISING(gpio_pin, 0);
+
+	// GPFEN0 GPIO Pin Falling Edge Detect Disable 
+	GPIO_INT_FALLING(gpio_pin, 0);
+
+	spin_unlock_irqrestore(&lock, flags);
+
+	free_irq(INTERRUPT_GPIO0, (void *) gpio);
+}
+
 // Initialise GPIO memory
 static int init_port(void)
 {
 	// reserve GPIO memory region. 
-	if (request_mem_region(GPIO_BASE, SZ_4K, DHT11_DRIVER_NAME) == NULL) {
-		printk(KERN_ERR DHT11_DRIVER_NAME ": unable to obtain GPIO I/O memory address\n");
+	if (request_mem_region(GPIO_BASE, SZ_4K, DRIVER_NAME) == NULL) {
+		printk(KERN_ERR DRIVER_NAME ": unable to obtain GPIO I/O memory address\n");
 		return -EBUSY;
 	}
 
 	// remap the GPIO memory 
 	if ((gpio = ioremap_nocache(GPIO_BASE, SZ_4K)) == NULL) {
-		printk(KERN_ERR DHT11_DRIVER_NAME ": failed to map GPIO I/O memory\n");
+		printk(KERN_ERR DRIVER_NAME ": failed to map GPIO I/O memory\n");
 		return -EBUSY;
 	}
 
 	return 0;
-}
-
-static int __init dht11_init_module(void)
-{
-	int result;
-	int i;
-
-	// check for valid gpio pin number - do wyrabania
-	result = 0;
-	for(i = 0; (i < ARRAY_SIZE(valid_gpio_pins)) && (result != 1); i++) {
-		if(gpio_pin == valid_gpio_pins[i]) 
-			result++;
-	}
-
-	if (result != 1) {
-		result = -EINVAL;
-		printk(KERN_ERR DHT11_DRIVER_NAME ": invalid GPIO pin specified!\n");
-		return result;
-	}
-    // do wyrabania
-	
-    result = register_chrdev(driverno, DHT11_DRIVER_NAME, &fops);
-
-	if (result < 0) {
-	  printk(KERN_ALERT DHT11_DRIVER_NAME "Registering dht11 driver failed with %d\n", result);
-	  return result;
-	}
-
-	printk(KERN_INFO DHT11_DRIVER_NAME ": driver registered!\n");
-
-	result = init_port();
-	if (result < 0)
-		return result;
-
-	return 0;
-
-}
-
-static void __exit dht11_exit_module(void)
-{
-	// release mapped memory and allocated region 
-	if(gpio != NULL) {
-		iounmap(gpio);
-		release_mem_region(GPIO_BASE, SZ_4K);
-		printk(DHT11_DRIVER_NAME ": cleaned up resources\n");
-	}
-
-	// Unregister the driver 
-	unregister_chrdev(driverno, DHT11_DRIVER_NAME);
-	printk(DHT11_DRIVER_NAME ": cleaned up module\n");
 }
 
 // Called when a process wants to open the dht11
@@ -287,7 +253,7 @@ static int device_open(struct inode *inode, struct file *file)
 	Device_Open++;
 
 	// Take data low for min 18mS to start up DHT11
-    //printk(KERN_INFO DHT11_DRIVER_NAME " Start setup (device_open)\n");
+    //printk(KERN_INFO DRIVER_NAME " Start setup (device_open)\n");
 
 start_read:
 	started = 0;
@@ -350,37 +316,6 @@ return_result:
 	return SUCCESS;
 }
 
-// Called when a process closes the device file.
-static int close_dht11(struct inode *inode, struct file *file)
-{
-	// Decrement the usage count, or else once you opened the file, you'll never get get rid of the module. 
-	module_put(THIS_MODULE);	
-	Device_Open--;
-
-	clear_interrupts();
-	//printk(KERN_INFO DHT11_DRIVER_NAME ": Device release (close_dht11)\n");
-
-	return 0;
-}
-	
-// Clear the GPIO edge detect interrupts
-static void clear_interrupts(void)
-{
-	unsigned long flags;
-
-	spin_lock_irqsave(&lock, flags);
-
-	// GPREN0 GPIO Pin Rising Edge Detect Disable 
-	GPIO_INT_RISING(gpio_pin, 0);
-
-	// GPFEN0 GPIO Pin Falling Edge Detect Disable 
-	GPIO_INT_FALLING(gpio_pin, 0);
-
-	spin_unlock_irqrestore(&lock, flags);
-
-	free_irq(INTERRUPT_GPIO0, (void *) gpio);
-}
-
 // Called when a process, which already opened the dev file, attempts to read from it.
 static ssize_t device_read(struct file *filp,	// see include/linux/fs.h   
 			   char *buffer,	// buffer to fill with data 
@@ -408,7 +343,58 @@ static ssize_t device_read(struct file *filp,	// see include/linux/fs.h
 	// Return the number of bytes put into the buffer
 	return bytes_read;
 }
+// Called when a process closes the device file.
+static int close_dht11(struct inode *inode, struct file *file)
+{
+	// Decrement the usage count, or else once you opened the file, you'll never get get rid of the module. 
+	module_put(THIS_MODULE);	
+	Device_Open--;
 
+	clear_interrupts();
+	//printk(KERN_INFO DRIVER_NAME ": Device release (close_dht11)\n");
+
+	return 0;
+}
+/*
+* Module init function
+*/
+static int __init dht11_init_module(void)
+{
+	int result;
+	int i;
+	
+    result = register_chrdev(driverno, DRIVER_NAME, &fops);
+
+	if (result < 0) {
+	  printk(KERN_ALERT DRIVER_NAME "Registering dht11 driver failed with %d\n", result);
+	  return result;
+	}
+
+	printk(KERN_INFO DRIVER_NAME ": driver registered!\n");
+
+	result = init_port();
+	if (result < 0)
+		return result;
+
+	return 0;
+
+}
+/*
+* Module exit function
+*/
+static void __exit dht11_exit_module(void)
+{
+	// release mapped memory and allocated region 
+	if(gpio != NULL) {
+		iounmap(gpio);
+		release_mem_region(GPIO_BASE, SZ_4K);
+		printk(DRIVER_NAME ": cleaned up resources\n");
+	}
+
+	// Unregister the driver 
+	unregister_chrdev(driverno, DRIVER_NAME);
+	printk(DRIVER_NAME ": cleaned up module\n");
+}
 module_init(dht11_init_module);
 module_exit(dht11_exit_module);
 
