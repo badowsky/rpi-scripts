@@ -26,6 +26,7 @@
 #include <linux/types.h>
 #include <linux/fs.h>
 #include <asm/uaccess.h>
+#include <include/linux/kernel.h>
 
 // -------------------------- GPIO OPERATIONS -------------------------- //
 
@@ -428,7 +429,7 @@ static ssize_t device_write(struct file *file,
             get_user(string_rom[j], buffer + i);
         }
         string_romPtr=string_rom;
-        rom[i] = (unsigned char)strtol(string_romPtr, NULL, 16);
+        rom[i] = (unsigned char)kstrtol(string_romPtr, NULL, 16);
     }
 
  
