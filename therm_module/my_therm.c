@@ -112,7 +112,7 @@ static char temp[BUF_LEN];				// The temp the device will give when asked
 static char *tempPtr;
 
 unsigned char rom[ROM_LEN] = {0x28, 0x8E, 0x09, 0x2F, 0x03, 0x00, 0x00, 0x1A};
-unsigned char *romPtrl
+unsigned char *romPtr;
 u8 ScratchPad[9];
 
 static u8 w1_crc8_table[] = {
@@ -419,10 +419,10 @@ device_write(struct file *file,
              loff_t * offset)
 {
     int i;
-
+    int current_len=0;
 
     printk(KERN_INFO "device_write(length: %d)", length);
-    current_len = length - 1;
+    int current_len = length - 1;
     for (i = 0; i < current_len && i < ROM_LEN; i++)
             get_user(rom[i], buffer + i);
     romPtr = rom;
