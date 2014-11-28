@@ -101,6 +101,9 @@
 
 #define SUCCESS 0
 #define BUF_LEN 10
+#define ROM_LEN 8
+
+#define ERROR -666
 // ------------------------ //
 
 
@@ -108,8 +111,8 @@ static int Device_Open = 0;				// Is device open?  Used to prevent multiple acce
 static char temp[BUF_LEN];				// The temp the device will give when asked 
 static char *tempPtr;
 
-unsigned char rom[8] = {0x28, 0x8E, 0x09, 0x2F, 0x03, 0x00, 0x00, 0x1A};
-
+unsigned char rom[ROM_LEN] = {0x28, 0x8E, 0x09, 0x2F, 0x03, 0x00, 0x00, 0x1A};
+unsigned char *romPtrl
 u8 ScratchPad[9];
 
 static u8 w1_crc8_table[] = {
@@ -137,7 +140,8 @@ static ssize_t device_read(struct file *, char *, size_t, loff_t *);
 static struct file_operations fops = {
 	.read = device_read,
 	.open = device_open,
-	.release = device_close
+	.release = device_close,
+        .write = device_write,
 };
 
 // -------------------------- IO --------------------------- //
@@ -352,9 +356,9 @@ int readScratchPad(unsigned char rom[8]){
 
 int readTemp(unsigned char rom[8]){
     if (!letConvertTemp(rom))
-        return -100;
+        return ERROR;
     if (!readScratchPad(rom))
-        return -100;
+        return ERROR;
 
     int converted_temp = convertTemp();
 
@@ -370,7 +374,12 @@ static int device_open(struct inode *inode, struct file *file)
         return -EBUSY;
     try_module_get(THIS_MODULE);		//Increase use count
     Device_Open++;
-    sprintf(temp, "%d", readTemp(rom));
+    int read_temp = readTemp(rom);
+    if (read_temp == ERROR){
+        sprintf(temp, "Failed.");
+    }else{
+        sprintf(temp, "%d", readTemp(rom));
+    }
     tempPtr = temp;
     return SUCCESS;
 }
@@ -380,6 +389,8 @@ static ssize_t device_read(struct file *filp,	// see include/linux/fs.h
 			   size_t length,	// length of the buffer     
 			   loff_t * offset)
 {
+        //printing rom connected device
+        readDeviceID();
 	// Number of bytes actually written to the buffer 
 	int bytes_read = 0;
 
@@ -400,6 +411,29 @@ static ssize_t device_read(struct file *filp,	// see include/linux/fs.h
 
 	// Return the number of bytes put into the buffer
 	return bytes_read;
+}
+
+device_write(struct file *file,
+	     const char __user * buffer,
+             size_t length,
+             loff_t * offset)
+{
+    int i;
+
+
+    printk(KERN_INFO "device_write(length: %d)", length);
+    current_len = length - 1;
+    for (i = 0; i < current_len && i < ROM_LEN; i++)
+            get_user(rom[i], buffer + i);
+    romPtr = rom;
+
+
+    /* 
+     * Again, return the number of input characters used 
+     * decresed by one because of resending if return < sent
+     */
+    printk(KERN_INFO "Returning: %d)", length);
+    return length;
 }
 
 static int device_close(struct inode *inode, struct file *file)
@@ -434,13 +468,6 @@ static int __init my_therm_init(void)
 	  printk(KERN_ALERT DRIVER_NAME "Registering DS18B20 driver failed with %d\n", result);
 	  return result;
 	}
-
-    //readDeviceID();
-
-
-
-    //readTemp(rom);
-    //printk(KERN_INFO "test of div(100,2) = %d", do_div(100,2));
     return result;
 }
 /*
