@@ -24,6 +24,8 @@
 #include <asm/div64.h>
 #include <asm/types.h>
 #include <linux/types.h>
+#include <linux/fs.h>
+#include <asm/uaccess.h>
 
 // -------------------------- GPIO OPERATIONS -------------------------- //
 
@@ -91,10 +93,20 @@
 #define MAX_READS_SCRATCHPAD	10
 #define MAX_READS_DEV_ID	10
 #define DS_PIN	10
+#define DRIVER_NAME "my_temp"
+#define DRIVER_MAJOR 81
 
+
+
+
+#define SUCCESS 0
+#define BUF_LEN 10
 // ------------------------ //
 
 
+static int Device_Open = 0;				// Is device open?  Used to prevent multiple access to device 
+static char temp[BUF_LEN];				// The msg the device will give when asked 
+static char *tempPtr;
 
 u8 ScratchPad[9];
 
@@ -132,9 +144,9 @@ inline void my_delay(int n){
 }
 void resetPulse(void){
 
-	OUT_GPIO_LOW(DS_PIN);
-	my_delay(500);
-	SET_GPIO_HIGH(DS_PIN);
+    OUT_GPIO_LOW(DS_PIN);
+    my_delay(500);
+    SET_GPIO_HIGH(DS_PIN);
     INP_GPIO(DS_PIN);
 
 }
@@ -177,15 +189,15 @@ inline int readBit(void){
 
     //sample should end after 15us since start of pulling low
     int bit;
-	OUT_GPIO_LOW(DS_PIN);
-	my_delay(6);
-	SET_GPIO_HIGH(DS_PIN);//dunno if this is needed
-	INP_GPIO(DS_PIN);
-	my_delay(9); //previous delay + this delay should be < 15
- 
-	bit = GPIO_READ(DS_PIN);
-	my_delay(55);
-	return bit ? 1 : 0;
+    OUT_GPIO_LOW(DS_PIN);
+    my_delay(6);
+    SET_GPIO_HIGH(DS_PIN);//dunno if this is needed
+    INP_GPIO(DS_PIN);
+    my_delay(9); //previous delay + this delay should be < 15
+
+    bit = GPIO_READ(DS_PIN);
+    my_delay(55);
+    return bit ? 1 : 0;
 }
 
 void writeByte(unsigned char value){
@@ -347,6 +359,56 @@ int readTemp(unsigned char rom[8]){
 }
 
 
+static int device_open(struct inode *inode, struct file *file)
+{
+    if (Device_Open)
+        return -EBUSY;
+    try_module_get(THIS_MODULE);		//Increase use count
+    Device_Open++;
+    sprintf(msg, "%d", readTemp());
+    tempPtr = temp;
+    return SUCCESS;
+}
+
+static ssize_t device_read(struct file *filp,	// see include/linux/fs.h   
+			   char *buffer,	// buffer to fill with data 
+			   size_t length,	// length of the buffer     
+			   loff_t * offset)
+{
+	// Number of bytes actually written to the buffer 
+	int bytes_read = 0;
+
+	// If we're at the end of the message, return 0 signifying end of file 
+	if (*tempPtr == 0)
+		return 0;
+
+	// Actually put the data into the buffer 
+	while (length && *tempPtr) {
+
+		// The buffer is in the user data segment, not the kernel  segment so "*" assignment won't work.  We have to use 
+		// put_user which copies data from the kernel data segment to the user data segment. 
+		put_user(*(tempPtr++), buffer++);
+
+		length--;
+		bytes_read++;
+	}
+
+	// Return the number of bytes put into the buffer
+	return bytes_read;
+}
+
+static int device_close(struct inode *inode, struct file *file)
+{
+	// Decrement the usage count, or else once you opened the file, you'll never get get rid of the module. 
+	module_put(THIS_MODULE);	
+	Device_Open--;
+
+
+	printk(KERN_INFO DRIVER_NAME ": Device release my_therm.\n");
+
+	return 0;
+}
+
 /*
 * Module init function
 */
@@ -361,18 +423,18 @@ static int __init my_therm_init(void)
         return result;
     }
     
-    //result = register_chrdev(driverno, DRIVER_NAME, &fops);
+    result = register_chrdev(DRIVER_MAJOR, DRIVER_NAME, &fops);
 
-	//if (result < 0) {
-	//  printk(KERN_ALERT DRIVER_NAME "Registering DS18B20 driver failed with %d\n", result);
-	//  return result;
-	//}
+	if (result < 0) {
+	  printk(KERN_ALERT DRIVER_NAME "Registering DS18B20 driver failed with %d\n", result);
+	  return result;
+	}
 
-    readDeviceID();
+    //readDeviceID();
 
     unsigned char rom[8] = {0x28, 0x8E, 0x09, 0x2F, 0x03, 0x00, 0x00, 0x1A};
 
-    readTemp(rom);
+    //readTemp(rom);
     //printk(KERN_INFO "test of div(100,2) = %d", do_div(100,2));
     return ret;
 }
@@ -386,6 +448,9 @@ static void __exit my_therm_exit(void)
     gpio_set_value(DS_PIN, 0);
     // unregister GPIO
     gpio_free(DS_PIN);
+    // Unregister the driver 
+    unregister_chrdev(DRIVER_MAJOR, DRIVER_NAME);
+    printk(DRIVER_NAME ": cleaned up module\n");
 }
 
 MODULE_LICENSE("GPL");
