@@ -92,6 +92,9 @@ static int device_close(struct inode *, struct file *);
 static ssize_t device_read(struct file *, char *, size_t, loff_t *);
 static void clear_interrupts(void);
 
+void read_sensor(void);
+int check_result(void);
+
 // Global variables are declared as static, so are global within the file. 
 static int Device_Open = 0;				// Is device open?  Used to prevent multiple access to device 
 static char msg[BUF_LEN];				// The msg the device will give when asked 
@@ -255,9 +258,9 @@ static int device_open(struct inode *inode, struct file *file)
     for(i=0;i<5;i++){
         read_sensor();
         if (check_result() == 0){
-            // If result is OK, notice it and brake the loop
+            // If result is OK, notice it and break the loop
             sprintf(result_validity, "OK");
-            brake;
+            break;
         }else{
             // If result is bad, notice it and prepare for another read
             sprintf(result_validity, "BAD");
