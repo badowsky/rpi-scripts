@@ -295,7 +295,7 @@ static int device_open(struct inode *inode, struct file *file)
 			sprintf(msg, "%02X%02X%02X%02X%02X%s\n", dht[0], dht[1], dht[2], dht[3], dht[4], result_validity);
 			break;
 		case 3:
-			sprintf(msg, "Temperature: %dC\nHumidity: %d%%\nResult:%s\n", dht[0], dht[2], result_validity);
+			sprintf(msg, "Temperature: %dC\nHumidity: %d%%\nResult:%s\nTry:%d", dht[0], dht[2], result_validity, i);
 			break;
 		
 	}
