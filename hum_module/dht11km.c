@@ -82,13 +82,13 @@
 
 // module parameters 
 static int sense = 0;
-static struct timeval lasttv = {0, 0};
+static struct timeval last_time = {0, 0};
 
 static spinlock_t lock;
 
 // Forward declarations
 static int device_open(struct inode *, struct file *);
-static int close_dht11(struct inode *, struct file *);
+static int device_close(struct inode *, struct file *);
 static ssize_t device_read(struct file *, char *, size_t, loff_t *);
 static void clear_interrupts(void);
 
@@ -109,7 +109,7 @@ static int driverno = 80;		//Default driver number
 static struct file_operations fops = {
 	.read = device_read,
 	.open = device_open,
-	.release = close_dht11
+	.release = device_close
 };
 
 
@@ -118,40 +118,39 @@ volatile unsigned *gpio;
 // IRQ handler - where the timing takes place
 static irqreturn_t irq_handler(int i, void *blah, struct pt_regs *regs)
 {
-	struct timeval tv;
-	long deltv;
-	int data = 0;
-	int signal;
+	struct timeval time;
+	long delta_t;
+	int data_time = 0;
+	int pin_state;
 
-	// use the GPIO signal level 
-	signal = GPIO_READ_PIN(gpio_pin);
+	// use the GPIO pin_state level 
+	pin_state = GPIO_READ_PIN(gpio_pin);
 
 	/* reset interrupt */
 	GPIO_INT_CLEAR(gpio_pin);
 
 	if (sense != -1) {
 		// get current time 
-		do_gettimeofday(&tv);
-
-		// get time since last interrupt in microseconds 
-		deltv = tv.tv_sec-lasttv.tv_sec;
+		do_gettimeofday(&time);
+		// time since last interrupt in microseconds 
+		delta_t = time.tv_sec-last_time.tv_sec;
 			
-		data = (int) (deltv*1000000 + (tv.tv_usec - lasttv.tv_usec));
-		lasttv = tv;	//Save last interrupt time
+		data_time = (int) (delta_t*1000000 + (time.tv_usec - last_time.tv_usec)); // ************************* przetestowac bez duplikowania
+		last_time = time;	//Save last interrupt time
 		
-		if((signal == 1)&(data > 40))
+		if((pin_state == 1)&(data_time > 40))
 			{
 			started = 1;
 			return IRQ_HANDLED;	
 			}
 			
-		if((signal == 0)&(started==1))
+		if((pin_state == 0)&(started==1))
 			{
-			if(data > 80)
-				return IRQ_HANDLED;										//Start/spurious? signal
-			if(data < 15)
-				return IRQ_HANDLED;										//Spurious signal?
-			if (data > 60)//55 
+			if(data_time > 80)
+				return IRQ_HANDLED;										//skip cause of Start/spurious? signal
+			if(data_time < 15)
+				return IRQ_HANDLED;										//skip cause of Spurious signal?
+			if (data_time > 60)//55 
 				dht[bytecount] = dht[bytecount] | (0x80 >> bitcount);	//Add a 1 to the data byte
 			
 			//Uncomment to log bits and durations - may affect performance and not be accurate!
@@ -239,10 +238,9 @@ static int init_port(void)
 	return 0;
 }
 
-// Called when a process wants to open the dht11
 static int device_open(struct inode *inode, struct file *file)
 {
-	char result[3];			//To say if the result is trustworthy or not
+	char result_validity[3];			//To say if the result is trustworthy or not
 	int retry = 0;
 	
 	if (Device_Open)
@@ -252,62 +250,49 @@ static int device_open(struct inode *inode, struct file *file)
 
 	Device_Open++;
 
-	// Take data low for min 18mS to start up DHT11
     //printk(KERN_INFO DRIVER_NAME " Start setup (device_open)\n");
-
-start_read:
-	started = 0;
-	bitcount = 0;
-	bytecount = 0;
-    dht[0] = 0;
-	dht[1] = 0;
-	dht[2] = 0;
-	dht[3] = 0;
-	dht[4] = 0;
-	GPIO_DIR_OUTPUT(gpio_pin); 	// Set pin to output
-    GPIO_CLEAR_PIN(gpio_pin);	// Set low
-    mdelay(20);					// DHT11 needs min 18mS to signal a startup
-    GPIO_SET_PIN(gpio_pin);		// Take pin high
-    udelay(40);					// Stay high for a bit before swapping to read mode
-    GPIO_DIR_INPUT(gpio_pin); 	// Change to read
-	
-	//Start timer to time pulse length
-	do_gettimeofday(&lasttv);
-	
-	// Set up interrupts
-	setup_interrupts();
-	
-	//Give the dht11 time to reply
-	mdelay(10);
+    int i;
+    for(i=0;i<5;i++){
+        read_sensor();
+        if (check_result() == 0){
+            // If result is OK, notice it and brake the loop
+            sprintf(result_validity, "OK");
+            brake;
+        }else{
+            // If result is bad, notice it and prepare for another read
+            sprintf(result_validity, "BAD");
+            clear_interrupts();
+            mdelay(1100);
+        }
+    }
 	
 	//Check if the read results are valid. If not then try again!
-	if((dht[0] + dht[1] + dht[2] + dht[3] == dht[4]) & (dht[4] > 0))
-		sprintf(result, "OK");
-	else
-		{
-		retry++;
-		sprintf(result, "BAD");
-		if(retry == 5)
-			goto return_result;		//We tried 5 times so bail out
-		clear_interrupts();
-		mdelay(1100);				//Can only read from sensor every 1 second so give it time to recover
-		goto start_read;
-		}
+//	if((dht[0] + dht[1] + dht[2] + dht[3] == dht[4]) & (dht[4] > 0))
+//		sprintf(result, "OK");
+//	else
+//		{
+//		retry++;
+//		sprintf(result, "BAD");
+//		if(retry == 5)
+//			goto return_result;		//We tried 5 times so bail out
+//		clear_interrupts();
+//		mdelay(1100);				//Can only read from sensor every 1 second so give it time to recover
+//		goto start_read;
+//		}
 
 		//Return the result in various different formats
-return_result:	
 	switch(format){
 		case 0:
-			sprintf(msg, "Values: %d, %d, %d, %d, %d, %s\n", dht[0], dht[1], dht[2], dht[3], dht[4], result);
+			sprintf(msg, "Values: %d, %d, %d, %d, %d, %s\n", dht[0], dht[1], dht[2], dht[3], dht[4], result_validity);
 			break;
 		case 1:
-			sprintf(msg, "%0X,%0X,%0X,%0X,%0X,%s\n", dht[0], dht[1], dht[2], dht[3], dht[4], result);
+			sprintf(msg, "%0X,%0X,%0X,%0X,%0X,%s\n", dht[0], dht[1], dht[2], dht[3], dht[4], result_validity);
 			break;
 		case 2:
-			sprintf(msg, "%02X%02X%02X%02X%02X%s\n", dht[0], dht[1], dht[2], dht[3], dht[4], result);
+			sprintf(msg, "%02X%02X%02X%02X%02X%s\n", dht[0], dht[1], dht[2], dht[3], dht[4], result_validity);
 			break;
 		case 3:
-			sprintf(msg, "Temperature: %dC\nHumidity: %d%%\nResult:%s\n", dht[0], dht[2], result);
+			sprintf(msg, "Temperature: %dC\nHumidity: %d%%\nResult:%s\n", dht[0], dht[2], result_validity);
 			break;
 		
 	}
@@ -316,7 +301,6 @@ return_result:
 	return SUCCESS;
 }
 
-// Called when a process, which already opened the dev file, attempts to read from it.
 static ssize_t device_read(struct file *filp,	// see include/linux/fs.h   
 			   char *buffer,	// buffer to fill with data 
 			   size_t length,	// length of the buffer     
@@ -343,22 +327,61 @@ static ssize_t device_read(struct file *filp,	// see include/linux/fs.h
 	// Return the number of bytes put into the buffer
 	return bytes_read;
 }
-// Called when a process closes the device file.
-static int close_dht11(struct inode *inode, struct file *file)
+
+static int device_close(struct inode *inode, struct file *file)
 {
 	// Decrement the usage count, or else once you opened the file, you'll never get get rid of the module. 
 	module_put(THIS_MODULE);	
 	Device_Open--;
 
 	clear_interrupts();
-	//printk(KERN_INFO DRIVER_NAME ": Device release (close_dht11)\n");
+	//printk(KERN_INFO DRIVER_NAME ": Device release (device_close)\n");
 
 	return 0;
+}
+
+void read_sensor(void)
+{
+	started = 0;
+	bitcount = 0;
+	bytecount = 0;
+    dht[0] = 0;
+	dht[1] = 0;
+	dht[2] = 0;
+	dht[3] = 0;
+	dht[4] = 0;
+	GPIO_DIR_OUTPUT(gpio_pin); 	// Set pin to output
+    GPIO_CLEAR_PIN(gpio_pin);	// Set low
+    mdelay(20);					// DHT11 needs min 18mS to signal a startup
+    GPIO_SET_PIN(gpio_pin);		// Take pin high
+    udelay(40);					// Stay high for a bit before swapping to read mode
+    GPIO_DIR_INPUT(gpio_pin); 	// Change to read
+	
+	//Start timer to time pulse length
+	do_gettimeofday(&last_time);
+	
+	// Set up interrupts
+	setup_interrupts();
+	
+	//Give the dht11 time to reply
+	mdelay(10);
+}
+int check_result(void)
+{
+    	//Check if the read results are valid. If not then try again!
+	if((dht[0] + dht[1] + dht[2] + dht[3] == dht[4]) & (dht[4] > 0))
+    {
+        return 0;
+    }
+	else
+	{
+	    return -1;
+	}
 }
 /*
 * Module init function
 */
-static int __init dht11_init_module(void)
+static int __init dht11_init(void)
 {
 	int result;
 	int i;
@@ -382,29 +405,29 @@ static int __init dht11_init_module(void)
 /*
 * Module exit function
 */
-static void __exit dht11_exit_module(void)
+static void __exit dht11_exit(void)
 {
 	// release mapped memory and allocated region 
 	if(gpio != NULL) {
 		iounmap(gpio);
 		release_mem_region(GPIO_BASE, SZ_4K);
-		printk(DRIVER_NAME ": cleaned up resources\n");
+		printk(KERN_INFO DRIVER_NAME ": cleaned up resources\n");
 	}
 
 	// Unregister the driver 
 	unregister_chrdev(driverno, DRIVER_NAME);
-	printk(DRIVER_NAME ": cleaned up module\n");
+	printk(KERN_INFO DRIVER_NAME ": cleaned up module\n");
 }
-module_init(dht11_init_module);
-module_exit(dht11_exit_module);
+module_init(dht11_init);
+module_exit(dht11_exit);
 
 MODULE_DESCRIPTION("DHT11 temperature/humidity sendor driver for Raspberry Pi GPIO.");
-MODULE_AUTHOR("Nigel Morton");
+MODULE_AUTHOR("Mateusz Badowski");
 MODULE_LICENSE("GPL");
 
 // Command line paramaters for gpio pin and driver major number
 module_param(format, int, S_IRUGO);
-MODULE_PARM_DESC(gpio_pin, "Format of output");
+MODULE_PARM_DESC(format, "Format of output");
 module_param(gpio_pin, int, S_IRUGO);
 MODULE_PARM_DESC(gpio_pin, "GPIO pin to use");
 module_param(driverno, int, S_IRUGO);
