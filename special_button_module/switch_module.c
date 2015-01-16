@@ -112,7 +112,7 @@ static int raw_gpio_set(int gpio, int val) {
 /* Bottom half of the power switch ISR.
  * We need to break this out here, as you can't run call_usermodehelper
  * from an interrupt context.
- * This function will actually Call /sbin/shutdown when the switch gets hit.
+ * This function will actually Call script when the switch gets hit.
  */
 static void initiate_shutdown(struct work_struct *work) {
 	char *cmd = "/bin/sh";
@@ -247,7 +247,7 @@ static void rpi_power_switch_power_off(void) {
 
 
 static irqreturn_t power_isr(int irqno, void *param) {
-	schedule_delayed_work(&initiate_shutdown_work, msecs_to_jiffies(100));
+	schedule_delayed_work(&initiate_shutdown_work, msecs_to_jiffies(1000));
 	return IRQ_HANDLED;
 }
 
