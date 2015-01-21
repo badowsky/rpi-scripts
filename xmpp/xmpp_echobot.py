@@ -87,9 +87,9 @@ if __name__ == '__main__':
     optp.add_option('-v', '--verbose', help='set logging to COMM',
                     action='store_const', dest='loglevel',
                     const=5, default=logging.INFO)
-	optp.add_option('-b', '--background', help='flag to not block script',
+    optp.add_option('-b', '--background', help='flag to not block script',
                     action='store_const', dest='block', 
-					const=False, default=True)
+		    const=False, default=True)
 
     # JID and password options.
     optp.add_option("-l", "--login", dest="jid",
