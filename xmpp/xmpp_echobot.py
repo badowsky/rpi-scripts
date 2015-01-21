@@ -1,14 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""
-    SleekXMPP: The Sleek XMPP Library
-    Copyright (C) 2010  Nathanael C. Fritz
-    This file is part of SleekXMPP.
-
-    See the file LICENSE for copying permission.
-"""
-
 import sys
 import logging
 import getpass
@@ -95,9 +87,12 @@ if __name__ == '__main__':
     optp.add_option('-v', '--verbose', help='set logging to COMM',
                     action='store_const', dest='loglevel',
                     const=5, default=logging.INFO)
+	optp.add_option('-b', '--background', help='flag to not block script',
+                    action='store_false', dest='block',
+                    default=True)
 
     # JID and password options.
-    optp.add_option("-j", "--jid", dest="jid",
+    optp.add_option("-l", "--login", dest="jid",
                     help="JID to use")
     optp.add_option("-p", "--password", dest="password",
                     help="password to use")
@@ -138,7 +133,7 @@ if __name__ == '__main__':
         #
         # if xmpp.connect(('talk.google.com', 5222)):
         #     ...
-        xmpp.process(block=True)
+        xmpp.process(block=opts.block)
         print("Done")
     else:
         print("Unable to connect.")
