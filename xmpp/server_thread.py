@@ -29,7 +29,7 @@ class EchoBot(sleekxmpp.ClientXMPP):
     """
 
     def __init__(self, jid, password):
-        super(EchoBot, self).__init__(self, jid, password)
+        sleekxmpp.ClientXMPP.__init__(self, jid, password)
 
         # The session_start event will be triggered when
         # the bot establishes its connection with the server
@@ -73,9 +73,6 @@ class EchoBot(sleekxmpp.ClientXMPP):
         """
         if msg['type'] in ('chat', 'normal'):
             msg.reply("Thanks for sending\n%(body)s" % msg).send()
-
-
-
  
 class Server(threading.Thread): 
     def __init__(self, xmpp_client):
@@ -115,16 +112,16 @@ class Server(threading.Thread):
         else:
             print("Unable to connect.")
 
-        def open_socket(self): 
-            try: 
-                self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
-                self.server.bind((self.host,self.port)) 
-                self.server.listen(5) 
-            except socket.error as err: 
-                if self.server: 
-                    self.server.close() 
-                print("Could not open socket: " + err.message) 
-                sys.exit(1) 
+    def open_socket(self): 
+        try: 
+            self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+            self.server.bind((self.host,self.port)) 
+            self.server.listen(5) 
+        except socket.error as err: 
+            if self.server: 
+                self.server.close() 
+            print("Could not open socket: " + err.message) 
+            sys.exit(1) 
  
     def run(self): 
         self.open_socket() 
@@ -214,6 +211,4 @@ if __name__ == '__main__':
 
     s = Server(xmpp) 
     s.start()
-    while 1:
-        time.sleep(1)
-        print("Poszło")
+
