@@ -84,6 +84,7 @@ class Server(threading.Thread):
         self.server = None 
         self.threads = []
 
+        self.single_thread = threading.Lock()
         self.xmpp_client = xmpp_client
 
         self.xmpp_client.register_plugin('xep_0030') # Service Discovery
@@ -134,7 +135,7 @@ class Server(threading.Thread):
  
                 if s == self.server: 
                     # handle the server socket 
-                    c = ServerClient(self.server.accept()) 
+                    c = ServerClient(self.server.accept(), self) 
                     c.start() 
                     self.threads.append(c) 
  
@@ -150,11 +151,12 @@ class Server(threading.Thread):
             c.join() 
  
 class ServerClient(threading.Thread): 
-    def __init__(self, conn): 
+    def __init__(self, conn, server): 
         threading.Thread.__init__(self) 
         self.client = conn[0]#client 
         self.address = conn[1]#address
         self.size = 1024
+        self.server=server
         print("nowy klient {addr}".format(addr=self.address))
 
     def run(self): 
@@ -166,6 +168,10 @@ class ServerClient(threading.Thread):
             print("recived")
             if data:
                 print("data")
+                with self.server.single_thread:
+                    self.server.xmpp_client.send_message(mto="mbadowsky@gmail.com",
+                                                         mbody="test",
+                                                         mtype='chat')
                 self.client.send(data) 
             else:
                 print("no data - closing")
