@@ -72,7 +72,7 @@ class EchoBot(sleekxmpp.ClientXMPP):
                    how it may be used.
         """
         if msg['type'] in ('chat', 'normal'):
-            msg.reply("Thanks for sending\n%(body)s" % msg).send()
+            print(msg['body'])
  
 class Server(threading.Thread): 
     def __init__(self, xmpp_client):
@@ -164,7 +164,11 @@ class ServerClient(threading.Thread):
         print("RUN")
         while running:
             print("running loop")
-            data = self.client.recv(self.size)
+            try:
+                data = self.client.recv(self.size)
+            except socket.error as err:
+                print("Connection shutdown unpredictable")
+                data = ''
             print("recived")
             if data:
                 print("sending: " + data.decode())

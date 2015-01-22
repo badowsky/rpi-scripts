@@ -8,12 +8,9 @@ port = 50000
 size = 1024
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((host,port))
-sys.stdout.write('%')
+
 
 while 1:
-    line = str(time.ctime(time.time())) + '\n'
+    line = input()
     s.send(line.encode())
-    data = s.recv(size)
-    sys.stdout.write(data.decode())
-    time.sleep(5)
 s.close()
