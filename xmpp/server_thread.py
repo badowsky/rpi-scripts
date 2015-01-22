@@ -109,9 +109,9 @@ class Server(threading.Thread):
             # if xmpp.connect(('talk.google.com', 5222)):
             #     ...
             self.xmpp_client.process(block=False)
-            print("Connected")
+            logger.info("Connected to XMPP server.")
         else:
-            print("Unable to connect.")
+            logger.error("Unable to connect.")
 
     def open_socket(self): 
         try: 
@@ -121,7 +121,7 @@ class Server(threading.Thread):
         except socket.error as err: 
             if self.server: 
                 self.server.close() 
-            print("Could not open socket: " + err.message) 
+            logger.error("Could not open socket: " + err.message) 
             sys.exit(1) 
  
     def run(self): 
@@ -157,28 +157,27 @@ class ServerClient(threading.Thread):
         self.address = conn[1]#address
         self.size = 1024
         self.server=server
-        print("nowy klient {addr}".format(addr=self.address))
+        logger.debug("New client with address: {addr}.".format(addr=self.address))
 
     def run(self): 
         running = 1
-        print("RUN")
         while running:
-            print("running loop")
             try:
                 data = self.client.recv(self.size)
+                logger.debug("Recived message: " + data.decode())
             except socket.error as err:
-                print("Connection shutdown unpredictable")
+                logger.debug("Connection closed suddenly.")
                 data = ''
-            print("recived")
+            
             if data:
-                print("sending: " + data.decode())
+                logger.debug("Sending message: " + data.decode())
                 with self.server.single_thread:
                     self.server.xmpp_client.send_message(mto="mbadowsky@gmail.com",
                                                          mbody=data.decode(),
                                                          mtype='chat')
                 self.client.send(data) 
             else:
-                print("no data - closing")
+                logger.debug("No data - closing connection.")
                 self.client.close() 
                 running = 0 
  
@@ -216,6 +215,13 @@ if __name__ == '__main__':
 
     # Setup the EchoBot and register plugins. Note that while plugins may
     # have interdependencies, the order in which you register them does
+    # not matter.
+    xmpp = EchoBot(opts.jid, opts.password)
+
+    s = Server(xmpp) 
+    s.start()
+
+them does
     # not matter.
     xmpp = EchoBot(opts.jid, opts.password)
 
