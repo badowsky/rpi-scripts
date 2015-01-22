@@ -8,7 +8,7 @@ import time
  
 class Server(threading.Thread): 
     def __init__(self):
-	    threading.Thread.__init__(self) 
+        threading.Thread.__init__(self)
         self.host = '' 
         self.port = 50000 
         self.backlog = 5 
@@ -21,10 +21,10 @@ class Server(threading.Thread):
             self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
             self.server.bind((self.host,self.port)) 
             self.server.listen(5) 
-        except socket.error, (value,message): 
+        except socket.error as err: 
             if self.server: 
                 self.server.close() 
-            print "Could not open socket: " + message 
+            print("Could not open socket: " + err.message) 
             sys.exit(1) 
  
     def run(self): 
@@ -54,25 +54,25 @@ class Server(threading.Thread):
             c.join() 
  
 class ServerClient(threading.Thread): 
-    def __init__(self,(client,address)): 
+    def __init__(self, conn): 
         threading.Thread.__init__(self) 
-        self.client = client 
-        self.address = address 
+        self.client = conn[0]#client 
+        self.address = conn[1]#address
         self.size = 1024
-	print("nowy klient {addr}".format(addr=address))
- 
+        print("nowy klient {addr}".format(addr=self.address))
+
     def run(self): 
         running = 1
-	print("RUN")
+        print("RUN")
         while running:
-	        print("running loop")
+            print("running loop")
             data = self.client.recv(self.size)
-	        print("recived")
+            print("recived")
             if data:
-		        print("data")
+                print("data")
                 self.client.send(data) 
             else:
-		        print("no data - closing")
+                print("no data - closing")
                 self.client.close() 
                 running = 0 
  

@@ -12,8 +12,8 @@ sys.stdout.write('%')
 
 while 1:
     line = str(time.ctime(time.time())) + '\n'
-    s.send(line)
+    s.send(line.encode())
     data = s.recv(size)
-    sys.stdout.write(data)
+    sys.stdout.write(data.decode())
     time.sleep(5)
 s.close()
