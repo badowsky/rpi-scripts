@@ -167,10 +167,10 @@ class ServerClient(threading.Thread):
             data = self.client.recv(self.size)
             print("recived")
             if data:
-                print("data")
+                print("sending: " + data.decode())
                 with self.server.single_thread:
                     self.server.xmpp_client.send_message(mto="mbadowsky@gmail.com",
-                                                         mbody="test",
+                                                         mbody=data.decode(),
                                                          mtype='chat')
                 self.client.send(data) 
             else:
@@ -195,9 +195,9 @@ if __name__ == '__main__':
 
     # JID and password options.
     optp.add_option("-l", "--login", dest="jid",
-                    help="JID to use")
+                    help="Login to use")
     optp.add_option("-p", "--password", dest="password",
-                    help="password to use")
+                    help="Password to use")
 
     opts, args = optp.parse_args()
 
