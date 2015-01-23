@@ -229,10 +229,12 @@ if __name__ == '__main__':
     # Setup the EchoBot and register plugins. Note that while plugins may
     # have interdependencies, the order in which you register them does
     # not matter.
-    #with daemon.DaemonContext():
+    fh = open('/home/pi/rpi-scripts/xmpp/server_thread.log', 'w')
+    #with daemon.DaemonContext(stdout=fh):
     xmpp = EchoBot(opts.jid, opts.password)
     s = Server(xmpp)
     s.start()
+<<<<<<< HEAD
 
     format='%(levelname)-8s %(message)s')
 
@@ -249,3 +251,5 @@ if __name__ == '__main__':
         xmpp = EchoBot(opts.jid, opts.password)
         s = Server(xmpp)
         s.start()
+=======
+>>>>>>> 8941b54e5d5c1ed3e889aaed3765dc3ba2f72333
