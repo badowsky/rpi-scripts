@@ -1,14 +1,20 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import select 
 import socket 
-import sys 
+import sys
+import errno
 import threading 
 import time
 import logging
 import getpass
+import daemon
 from optparse import OptionParser
+from MsgParser import MsgParser
 
 import sleekxmpp
+
+logger = logging.getLogger(__name__)
 
 # Python versions before 3.0 do not use UTF-8 encoding
 # by default. To ensure that Unicode is handled properly
@@ -43,6 +49,8 @@ class EchoBot(sleekxmpp.ClientXMPP):
         # MUC messages and error messages.
         self.add_event_handler("message", self.message)
 
+        self.parser = MsgParser()
+
     def start(self, event):
         """
         Process the session_start event.
@@ -72,13 +80,14 @@ class EchoBot(sleekxmpp.ClientXMPP):
                    how it may be used.
         """
         if msg['type'] in ('chat', 'normal'):
-            print(msg['body'])
+            self.parser.process(msg['body'])
+            msg.reply("Thanks for sending\n%(body)s" % msg).send()
  
 class Server(threading.Thread): 
     def __init__(self, xmpp_client):
         threading.Thread.__init__(self)
-        self.host = '' 
-        self.port = 50000 
+        self.host = '127.0.0.1' 
+        self.port = 5005 
         self.backlog = 5 
         self.size = 1024 
         self.server = None 
@@ -110,18 +119,21 @@ class Server(threading.Thread):
             #     ...
             self.xmpp_client.process(block=False)
             logger.info("Connected to XMPP server.")
+            #self.run()
         else:
             logger.error("Unable to connect.")
 
     def open_socket(self): 
         try: 
+            #self.server = server
             self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
             self.server.bind((self.host,self.port)) 
-            self.server.listen(5) 
+            self.server.listen(5)
+            logger.info("Socked created - listen to socket: host: {} port: {}".format(self.host, self.port)) 
         except socket.error as err: 
             if self.server: 
                 self.server.close() 
-            logger.error("Could not open socket: " + err.message) 
+            logger.error("Could not open socket: " + errno.errorcode[err.errno]) 
             sys.exit(1) 
  
     def run(self): 
@@ -164,13 +176,12 @@ class ServerClient(threading.Thread):
         while running:
             try:
                 data = self.client.recv(self.size)
-                logger.debug("Recived message: " + data.decode())
             except socket.error as err:
                 logger.debug("Connection closed suddenly.")
                 data = ''
             
             if data:
-                logger.debug("Sending message: " + data.decode())
+                logger.debug("Recived and sending message: " + data.decode())
                 with self.server.single_thread:
                     self.server.xmpp_client.send_message(mto="mbadowsky@gmail.com",
                                                          mbody=data.decode(),
@@ -198,14 +209,16 @@ if __name__ == '__main__':
 
     # JID and password options.
     optp.add_option("-l", "--login", dest="jid",
-                    help="Login to use")
+                    help="Login to use", default="bador.rpi@gmail.com")
     optp.add_option("-p", "--password", dest="password",
-                    help="Password to use")
+                    help="Password to use", default="ba1805di")
 
     opts, args = optp.parse_args()
 
     # Setup logging.
-    logging.basicConfig(level=opts.loglevel,
+    logging.basicConfig(filename='/home/pi/rpi-scripts/xmpp/server_thread.log',
+                        #level=opts.loglevel,
+                        level=logging.DEBUG,
                         format='%(levelname)-8s %(message)s')
 
     if opts.jid is None:
@@ -216,15 +229,8 @@ if __name__ == '__main__':
     # Setup the EchoBot and register plugins. Note that while plugins may
     # have interdependencies, the order in which you register them does
     # not matter.
-    xmpp = EchoBot(opts.jid, opts.password)
-
-    s = Server(xmpp) 
-    s.start()
-
-them does
-    # not matter.
-    xmpp = EchoBot(opts.jid, opts.password)
-
-    s = Server(xmpp) 
-    s.start()
-
+    fh = open('/home/pi/rpi-scripts/xmpp/server_thread.log', 'w')
+    with daemon.DaemonContext(stdout=fh):
+        xmpp = EchoBot(opts.jid, opts.password)
+        s = Server(xmpp)
+        s.start()
