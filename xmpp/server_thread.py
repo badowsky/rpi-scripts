@@ -233,7 +233,8 @@ if __name__ == '__main__':
     xmpp = EchoBot(opts.jid, opts.password)
     s = Server(xmpp)
     s.start()
-format='%(levelname)-8s %(message)s')
+
+    format='%(levelname)-8s %(message)s')
 
     if opts.jid is None:
         opts.jid = raw_input("Username: ")
