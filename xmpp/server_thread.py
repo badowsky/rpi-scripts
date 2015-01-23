@@ -66,6 +66,10 @@ class EchoBot(sleekxmpp.ClientXMPP):
         """
         self.send_presence()
         self.get_roster()
+        startup_msg = "Hello I've just started :)\nEvent time: " + time.strftime("%a %d/%m %H:%M")
+        self.send_message(mto="mbadowsky@gmail.com",
+                          mbody=startup_msg,
+                          mtype='chat')
 
     def message(self, msg):
         """
@@ -83,9 +87,9 @@ class EchoBot(sleekxmpp.ClientXMPP):
             self.parser.process(msg['body'])
             msg.reply("Thanks for sending\n%(body)s" % msg).send()
  
-class Server(threading.Thread): 
+class Server():#threading.Thread): 
     def __init__(self, xmpp_client):
-        threading.Thread.__init__(self)
+        #threading.Thread.__init__(self)
         self.host = '127.0.0.1' 
         self.port = 5005 
         self.backlog = 5 
@@ -141,13 +145,7 @@ class Server(threading.Thread):
         #input = [self.server,sys.stdin] 
         running = 1 
         while running: 
-            #inputready,outputready,exceptready = select.select(input,[],[]) 
- 
-            #for s in inputready: 
- 
-                #if s == self.server: 
-                    # handle the server socket 
-            logger.info("Oczekuje polaczenia...")
+            logger.info("Waiting for connection...")
             c = ServerClient(self.server.accept(), self) 
             c.start() 
             self.threads.append(c) 
@@ -187,40 +185,12 @@ class ServerClient(threading.Thread):
                     self.server.xmpp_client.send_message(mto="mbadowsky@gmail.com",
                                                          mbody=data.decode(),
                                                          mtype='chat')
-                self.client.send(data) 
+                #self.client.send(data) 
             else:
                 logger.debug("No data - closing connection.")
                 self.client.close() 
                 running = 0 
- 
-def daemon (stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
-    try:
-        pid = os.fork( )
-        if pid > 0:
-            sys.exit(0)
-    except OSError, e:
-        sys.stderr.write("fork #1 failed: (%d) %sn" % (e.errno, e.strerror))
-        sys.exit(1)
 
-    os.chdir("/")
-    os.umask(0)
-    os.setsid()
-
-    try:
-        pid = os.fork( )
-        if pid > 0:
-            sys.exit(0)
-    except OSError, e:
-        sys.stderr.write("fork #2 failed: (%d) %sn" % (e.errno, e.strerror))
-        sys.exit(1)
-    # The process is now daemonized, redirect standard file descriptors.
-    for f in sys.stdout, sys.stderr: f.flush()
-    si = file(stdin, 'r')
-    so = file(stdout, 'a+')
-    se = file(stderr, 'a+', 0)
-    os.dup2(si.fileno(), sys.stdin.fileno())
-    os.dup2(so.fileno(), sys.stdout.fileno())
-    os.dup2(se.fileno(), sys.stderr.fileno())
 
 if __name__ == '__main__':
     # Setup the command line arguments.
@@ -262,5 +232,6 @@ if __name__ == '__main__':
     #with daemon.DaemonContext(stdout=fh):
     xmpp = EchoBot(opts.jid, opts.password)
     s = Server(xmpp)
-    s.start()
-    demon()
+    #s.start()
+    s.run()
+    #demon()
