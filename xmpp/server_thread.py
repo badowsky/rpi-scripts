@@ -229,6 +229,20 @@ if __name__ == '__main__':
     # Setup the EchoBot and register plugins. Note that while plugins may
     # have interdependencies, the order in which you register them does
     # not matter.
+    #with daemon.DaemonContext():
+    xmpp = EchoBot(opts.jid, opts.password)
+    s = Server(xmpp)
+    s.start()
+format='%(levelname)-8s %(message)s')
+
+    if opts.jid is None:
+        opts.jid = raw_input("Username: ")
+    if opts.password is None:
+        opts.password = getpass.getpass("Password: ")
+
+    # Setup the EchoBot and register plugins. Note that while plugins may
+    # have interdependencies, the order in which you register them does
+    # not matter.
     fh = open('/home/pi/rpi-scripts/xmpp/server_thread.log', 'w')
     with daemon.DaemonContext(stdout=fh):
         xmpp = EchoBot(opts.jid, opts.password)
