@@ -10,7 +10,7 @@ import logging
 import getpass
 import daemon
 from optparse import OptionParser
-from MsgParser import MsgParser
+import MsgParser
 
 import sleekxmpp
 
@@ -49,7 +49,7 @@ class EchoBot(sleekxmpp.ClientXMPP):
         # MUC messages and error messages.
         self.add_event_handler("message", self.message)
 
-        self.parser = MsgParser()
+        self.parser = MsgParser.MsgParser()
 
     def start(self, event):
         """
@@ -84,8 +84,7 @@ class EchoBot(sleekxmpp.ClientXMPP):
                    how it may be used.
         """
         if msg['type'] in ('chat', 'normal'):
-            self.parser.process(msg['body'])
-            msg.reply("Thanks for sending\n%(body)s" % msg).send()
+            msg.reply(self.parser.process(msg['body'])).send()
  
 class Server():#threading.Thread): 
     def __init__(self, xmpp_client):
@@ -216,7 +215,7 @@ if __name__ == '__main__':
     opts, args = optp.parse_args()
 
     # Setup logging.
-    logging.basicConfig(filename='/home/pi/rpi-scripts/xmpp/server_thread.log',
+    logging.basicConfig(#filename='/home/pi/rpi-scripts/xmpp/server_thread.log',
                         #level=opts.loglevel,
                         level=logging.DEBUG,
                         format='%(levelname)-8s %(message)s')
