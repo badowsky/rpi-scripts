@@ -192,6 +192,35 @@ class ServerClient(threading.Thread):
                 self.client.close() 
                 running = 0 
  
+def daemon (stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
+    try:
+        pid = os.fork( )
+        if pid > 0:
+            sys.exit(0)
+    except OSError, e:
+        sys.stderr.write("fork #1 failed: (%d) %sn" % (e.errno, e.strerror))
+        sys.exit(1)
+
+    os.chdir("/")
+    os.umask(0)
+    os.setsid()
+
+    try:
+        pid = os.fork( )
+        if pid > 0:
+            sys.exit(0)
+    except OSError, e:
+        sys.stderr.write("fork #2 failed: (%d) %sn" % (e.errno, e.strerror))
+        sys.exit(1)
+    # The process is now daemonized, redirect standard file descriptors.
+    for f in sys.stdout, sys.stderr: f.flush()
+    si = file(stdin, 'r')
+    so = file(stdout, 'a+')
+    se = file(stderr, 'a+', 0)
+    os.dup2(si.fileno(), sys.stdin.fileno())
+    os.dup2(so.fileno(), sys.stdout.fileno())
+    os.dup2(se.fileno(), sys.stderr.fileno())
+
 if __name__ == '__main__':
     # Setup the command line arguments.
     optp = OptionParser()
@@ -229,27 +258,8 @@ if __name__ == '__main__':
     # Setup the EchoBot and register plugins. Note that while plugins may
     # have interdependencies, the order in which you register them does
     # not matter.
-    fh = open('/home/pi/rpi-scripts/xmpp/server_thread.log', 'w')
     #with daemon.DaemonContext(stdout=fh):
     xmpp = EchoBot(opts.jid, opts.password)
     s = Server(xmpp)
     s.start()
-<<<<<<< HEAD
-
-    format='%(levelname)-8s %(message)s')
-
-    if opts.jid is None:
-        opts.jid = raw_input("Username: ")
-    if opts.password is None:
-        opts.password = getpass.getpass("Password: ")
-
-    # Setup the EchoBot and register plugins. Note that while plugins may
-    # have interdependencies, the order in which you register them does
-    # not matter.
-    fh = open('/home/pi/rpi-scripts/xmpp/server_thread.log', 'w')
-    with daemon.DaemonContext(stdout=fh):
-        xmpp = EchoBot(opts.jid, opts.password)
-        s = Server(xmpp)
-        s.start()
-=======
->>>>>>> 8941b54e5d5c1ed3e889aaed3765dc3ba2f72333
+    demon()
