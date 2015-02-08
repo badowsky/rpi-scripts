@@ -1,0 +1,1 @@
+cmd_/home/pi/rpi-scripts/special_button_module/special_button.ko := ld -EL -r  -T /root/linux-75effe12bf018ba40a8ee03b3b555315200f9267/scripts/module-common.lds --build-id  -o /home/pi/rpi-scripts/special_button_module/special_button.ko /home/pi/rpi-scripts/special_button_module/special_button.o /home/pi/rpi-scripts/special_button_module/special_button.mod.o

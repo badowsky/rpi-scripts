@@ -1,0 +1,1 @@
+cmd_/home/pi/rpi-scripts/special_button_module/switch_module.ko := ld -EL -r  -T /root/linux-e790c757e08c33ff3b0ddc01ff31aa408335371c/scripts/module-common.lds --build-id  -o /home/pi/rpi-scripts/special_button_module/switch_module.ko /home/pi/rpi-scripts/special_button_module/switch_module.o /home/pi/rpi-scripts/special_button_module/switch_module.mod.o

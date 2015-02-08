@@ -1,0 +1,1 @@
+cmd_/home/pi/rpi-scripts/lcd_module/my_char_dev.ko := ld -EL -r  -T /root/linux-75effe12bf018ba40a8ee03b3b555315200f9267/scripts/module-common.lds --build-id  -o /home/pi/rpi-scripts/lcd_module/my_char_dev.ko /home/pi/rpi-scripts/lcd_module/my_char_dev.o /home/pi/rpi-scripts/lcd_module/my_char_dev.mod.o

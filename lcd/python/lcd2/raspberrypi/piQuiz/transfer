@@ -1,0 +1,3 @@
+
+scp $HOME/Documents/programming/raspi/Electronic/WiringUtils.* $HOME/Documents/programming/raspi/Electronic/quiz.c  pi@raspberrypi.local:/home/pi/Documents/Electronics/piquiz
+

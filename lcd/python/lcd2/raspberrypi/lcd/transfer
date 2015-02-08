@@ -1,0 +1,3 @@
+
+scp ./*.* ./Makefile  pi@raspberrypi.local:/home/pi/Documents/Electronics/lcd
+
