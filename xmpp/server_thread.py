@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import select 
+import subprocess
 import socket 
 import sys
 import errno
@@ -8,7 +9,7 @@ import threading
 import time
 import logging
 import getpass
-import daemon
+#import daemon
 from optparse import OptionParser
 import MsgParser
 
@@ -66,7 +67,8 @@ class EchoBot(sleekxmpp.ClientXMPP):
         """
         self.send_presence()
         self.get_roster()
-        startup_msg = "Hello I've just started :)\nEvent time: " + time.strftime("%a %d/%m %H:%M")
+        startup_msg = "Hello I've just started :)\nEvent time: " + time.strftime("%a %d/%m %H:%M") + "\n" + \
+                      subprocess.check_output(["uptime"], universal_newlines=True)
         self.send_message(mto="mbadowsky@gmail.com",
                           mbody=startup_msg,
                           mtype='chat')

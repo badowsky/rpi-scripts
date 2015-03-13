@@ -1,12 +1,11 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 import re 
 import os
+import sys
 import json
 import argparse
 import requests
 import logging
-import Adafruit_BMP.BMP085 as BMP085
+from Adafruit_BMP085 import BMP085
 
 logger = logging.getLogger("Heart")
 
@@ -42,24 +41,25 @@ def get_humidity():
     file_path = "/dev/dht11"
     try:
         logger.debug("Opening file: {}".format(file_path))
-        file = open(file_path, "r")
-        output = file.read()
-        logger.debug("\n" + output)
-        file.close()
-        match = re.search(".*, .*,.*,.*, (\d+),.* ", output)
-        if match:
-            hum = match.group(1)
-            logger.debug("Matched: {}".format(match.group(1)))
-            return int(hum)
-        else:
-            logger.error("Humidity check failed")
+        for x in range(1,5):
+            file = open(file_path, "r")
+            output = file.read()
+            logger.debug("\n" + output)
+            file.close()
+            match = re.search(".*, .*,.*,.*, (\d+), (OK|BAD)", output)
+            if match:
+                logger.debug("Matched {}: {} in {} try.".format(match.group(2), match.group(1), x))
+                if match.group(2) == "OK":
+                    return int(match.group(1))
+            else:
+                logger.error("Humidity check failed")
     except IOError as err:
         logger.error("File not found...")
     return None
 
 def get_pressure():
-    pressure_sensor = BMP085.BMP085()
-    pressure_in_Pa = pressure_sensor.read_pressure()
+    pressure_sensor = BMP085()
+    pressure_in_Pa = pressure_sensor.readPressure()
     return pressure_in_Pa
 
 def get_module_list():
@@ -82,7 +82,7 @@ def check_therm_module():
         if re.search("w1_gpio", modules):
             gpio_loaded = True
         else:
-            print("Enabling 1-Wire...")
+            logger.info("Enabling 1-Wire...")
             os.system("sudo modprobe w1-gpio")
             if re.search("w1_gpio", modules):
                 gpio_loaded = True
@@ -91,7 +91,7 @@ def check_therm_module():
         if re.search("w1_therm", modules):
             therm_loaded = True
         else:
-            print("Enabling 1w therm...")
+            logger.info("Enabling 1w therm...")
             os.system("sudo modprobe w1-therm")
             if re.search("w1_therm", modules):
                 therm_loaded = True
@@ -104,7 +104,7 @@ def check_lcd_module():
         if re.search("char_dev", modules):
             return True
         else:
-            print("Loading char_dev...")
+            logger.info("Loading char_dev...")
             os.system("sudo sh /home/pi/rpi-scripts/lcd/module/load.sh")
             if re.search("char_dev", modules):
                 return True
@@ -116,7 +116,7 @@ def check_humidity_module():
         if re.search("dht11km", modules):
             return True
         else:
-            print("Loading dht11km...")
+            logger.info("Loading dht11km...")
             os.system("sudo sh /home/pi/rpi-scripts/humidity/module/load.sh")
             if re.search("dht11km", modules):
                 return True
@@ -124,14 +124,21 @@ def check_humidity_module():
 
 def putMeasure(id, value):
     params = { 'id': id, 'value': value }
-    r = requests.post(PUT_MEASURE_URL, data=params)
-    return r.text
+    try:
+        r = requests.post(PUT_MEASURE_URL, data=params)
+        return r.text
+    except requests.exceptions.RequestException as err:
+        logger.warning("Cannot send measure...")
+        return "-666.6"
 
 def getMeasure(temp_id, mode="last"):
     params = {'id': temp_id, 'mode': mode}
-    r = requests.get(GET_MEASURE_URL, params=params)
-    return r.text
-
+    try:
+        r = requests.get(GET_MEASURE_URL, params=params)
+        return r.text
+    except requests.exceptions.RequestException as err:
+        logger.warning("Cannot get measure...")
+        return "-666.6"
 
 
 
@@ -162,13 +169,18 @@ if __name__ == '__main__':
                         const=5, default=logging.INFO)
     args = parser.parse_args()
     # Setup logging.
-    logging.basicConfig(#filename='/home/pi/rpi-scripts/xmpp/server_thread.log',
-                        #level=opts.loglevel,
-                        level=args.loglevel,
+    logging.basicConfig(stream=sys.stdout,
+			level=args.loglevel,
                         format='%(levelname)-8s %(message)s')
-    
-    measurements = {"humidity": get_humidity(),
-                    "pressure": get_pressure()}
+    stdoutHandler = logging.StreamHandler(sys.stdout)
+    stdoutHandler.setLevel(logging.INFO)
+    stdoutHandler.setFormatter(logging.Formatter('%(message)s'))
+    #logger.addHandler(stdoutHandler)
+    measurements = {"temperature_inside": None,
+		    "temperature_outside": None,
+		    "humidity": None,
+                    "pressure": None }
+
     if check_therm_module():
         measurements["temperature_inside"] = get_temp(INSIDE_TEMP_ID)
         measurements["temperature_outside"] = get_temp(OUTSIDE_TEMP_ID)
@@ -187,35 +199,40 @@ if __name__ == '__main__':
     else:
         humidity = "Err"
 
-
-    logger.info("Ostatnia temperatura na zawnatrz: " + ("%.2f" % float(getMeasure(OUTSIDE_TABLE_ID, "last"))))
-    logger.info("Ostatnia temperatura wewnatrz: " + ("%.2f" % float(getMeasure(INSIDE_TABLE_ID, "last"))))
+    #logger.debug(getMeasure(OUTSIDE_TABLE_ID, "last"))
+    #logger.info("Ostatnia temperatura na zawnatrz: " + ("%.2f" % float(getMeasure(OUTSIDE_TABLE_ID, "last"))))
+    #logger.info("Ostatnia temperatura wewnatrz: " + ("%.2f" % float(getMeasure(INSIDE_TABLE_ID, "last"))))
     logger.info("Aktualna na zewnatrz: " + ("%.1f" % measurements["temperature_outside"]))
     logger.info("Aktualna wewnatrz: " + ("%.1f" % measurements["temperature_inside"]))
     logger.info("Cisnienie: " + ("%.0f" % (measurements["pressure"]/100.0)))
     logger.info("Wilgotnosc: " + str(measurements["humidity"]))
     
     if args.print_lcd:
-        formated_temp_in = "W:" + ("%.1f" % measurements["temperature_outside"]) + chr(223) + "C"
-        formated_temp_out = "Z:" + ("%.1f" % measurements["temperature_inside"]) + chr(223) + "C"
-        formated_pressure_hPa = "P:" + ("%.0f" % (measurements["pressure"]/100.0)) + "hPa"
-        formated_humidity = "H:" + str(measurements["humidity"]) + "%"
+	if check_lcd_module():
+	    logger.info("Printing on lcd...")
+            formated_temp_in = "W:" + ("%.1f" % measurements["temperature_inside"]) + chr(223) + "C"
+            formated_temp_out = "Z:" + ("%.1f" % measurements["temperature_outside"]) + chr(223) + "C"
+            formated_pressure_hPa = "P:" + ("%.0f" % (measurements["pressure"]/100.0)) + "hPa"
+            formated_humidity = "H:" + str(measurements["humidity"]) + "%"
 
-        chars_left_1st_line = 16 - (len(formated_temp_in) + len(formated_temp_out))
-        chars_left_2nd_line = 16 - (len(formated_pressure_hPa) + len(formated_humidity))
+            chars_left_1st_line = 16 - (len(formated_temp_in) + len(formated_temp_out))
+            chars_left_2nd_line = 16 - (len(formated_pressure_hPa) + len(formated_humidity))
 
-        for x in range(0, chars_left_1st_line):
-            formated_temp_in += " "
-        for x in range(0, chars_left_2nd_line):
-            formated_pressure_hPa += " "
+            for x in range(0, chars_left_1st_line):
+                formated_temp_in += " "
+            for x in range(0, chars_left_2nd_line):
+                formated_pressure_hPa += " "
 
-        first_line = formated_temp_in + formated_temp_out
-        second_line = formated_pressure_hPa + formated_humidity
-
-        os.system("echo " + first_line + second_line + " > /dev/char_dev")
+            first_line = formated_temp_in + formated_temp_out
+            second_line = formated_pressure_hPa + formated_humidity
+	    logger.debug("\n" + first_line + "\n" + second_line)
+            os.system("echo " + first_line + second_line + " > /dev/char_dev")
 
     if args.store_local:
         file_path = "/home/pi/rpi-scripts/measurements.json"
         logger.debug("Storing to local file: " +  file_path)
+        from datetime import datetime
+        measurements['date'] = datetime.now().isoformat()
         with open(file_path, 'w') as f:
             json.dump({"measurements": measurements}, f, ensure_ascii=False, indent = 4)
+

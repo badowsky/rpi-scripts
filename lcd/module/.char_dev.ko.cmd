@@ -1,1 +1,1 @@
-cmd_/home/pi/rpi-scripts/lcd_module/char_dev.ko := ld -EL -r  -T ./scripts/module-common.lds --build-id  -o /home/pi/rpi-scripts/lcd_module/char_dev.ko /home/pi/rpi-scripts/lcd_module/char_dev.o /home/pi/rpi-scripts/lcd_module/char_dev.mod.o
+cmd_/home/pi/rpi-scripts/lcd/module/char_dev.ko := ld -EL -r  -T ./scripts/module-common.lds --build-id  -o /home/pi/rpi-scripts/lcd/module/char_dev.ko /home/pi/rpi-scripts/lcd/module/char_dev.o /home/pi/rpi-scripts/lcd/module/char_dev.mod.o

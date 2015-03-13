@@ -1,1 +1,1 @@
-cmd_/home/pi/rpi-scripts/hum_module/dht11km.ko := ld -EL -r  -T ./scripts/module-common.lds --build-id  -o /home/pi/rpi-scripts/hum_module/dht11km.ko /home/pi/rpi-scripts/hum_module/dht11km.o /home/pi/rpi-scripts/hum_module/dht11km.mod.o
+cmd_/home/pi/rpi-scripts/humidity/module/dht11km.ko := ld -EL -r  -T ./scripts/module-common.lds --build-id  -o /home/pi/rpi-scripts/humidity/module/dht11km.ko /home/pi/rpi-scripts/humidity/module/dht11km.o /home/pi/rpi-scripts/humidity/module/dht11km.mod.o

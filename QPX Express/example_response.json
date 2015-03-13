@@ -1,0 +1,702 @@
+{
+    "kind": "qpxExpress#tripsSearch", 
+    "trips": {
+        "tripOption": [
+            {
+                "saleTotal": "EUR629.19", 
+                "kind": "qpxexpress#tripOption", 
+                "slice": [
+                    {
+                        "duration": 1760, 
+                        "kind": "qpxexpress#sliceInfo", 
+                        "segment": [
+                            {
+                                "kind": "qpxexpress#segmentInfo", 
+                                "bookingCodeCount": 9, 
+                                "flight": {
+                                    "carrier": "AB", 
+                                    "number": "5302"
+                                }, 
+                                "leg": [
+                                    {
+                                        "origin": "TXL", 
+                                        "departureTime": "2015-03-13T19:35+01:00", 
+                                        "destinationTerminal": "4", 
+                                        "destination": "MAD", 
+                                        "kind": "qpxexpress#legInfo", 
+                                        "meal": "Food and Beverages for Purchase", 
+                                        "aircraft": "32S", 
+                                        "mileage": 1150, 
+                                        "arrivalTime": "2015-03-13T22:45+01:00", 
+                                        "duration": 190, 
+                                        "operatingDisclosure": "OPERATED BY IBERIA EXPRESS FOR IBERIA", 
+                                        "id": "LVcfcSeRRz+iZtet"
+                                    }
+                                ], 
+                                "connectionDuration": 855, 
+                                "bookingCode": "N", 
+                                "duration": 190, 
+                                "id": "Go4C14m+LL0-DkxA", 
+                                "cabin": "COACH", 
+                                "marriedSegmentGroup": "0"
+                            }, 
+                            {
+                                "kind": "qpxexpress#segmentInfo", 
+                                "bookingCodeCount": 3, 
+                                "flight": {
+                                    "carrier": "LA", 
+                                    "number": "5101"
+                                }, 
+                                "leg": [
+                                    {
+                                        "origin": "MAD", 
+                                        "originTerminal": "4S", 
+                                        "departureTime": "2015-03-14T13:00+01:00", 
+                                        "mileage": 5917, 
+                                        "destination": "LIM", 
+                                        "kind": "qpxexpress#legInfo", 
+                                        "meal": "Lunch", 
+                                        "aircraft": "343", 
+                                        "arrivalTime": "2015-03-14T18:55-05:00", 
+                                        "duration": 715, 
+                                        "operatingDisclosure": "OPERATED BY IBERIA FOR LAN PERU", 
+                                        "id": "LhFYYf7a54w8zRG-"
+                                    }
+                                ], 
+                                "bookingCode": "O", 
+                                "duration": 715, 
+                                "id": "GqYHDTxslxdUHHxR", 
+                                "cabin": "COACH", 
+                                "marriedSegmentGroup": "1"
+                            }
+                        ]
+                    }
+                ], 
+                "id": "TEBRdHZzaP9RfBDkXOlWYH002", 
+                "pricing": [
+                    {
+                        "fare": [
+                            {
+                                "origin": "BER", 
+                                "basisCode": "NNCOW", 
+                                "kind": "qpxexpress#fareInfo", 
+                                "destination": "MAD", 
+                                "carrier": "AB", 
+                                "id": "AHZ4WgXqREIZELwfvbIcOL0AxqbyS6859X+dVyQV0XwY"
+                            }, 
+                            {
+                                "origin": "MAD", 
+                                "basisCode": "OLESPW0R", 
+                                "kind": "qpxexpress#fareInfo", 
+                                "destination": "LIM", 
+                                "carrier": "LA", 
+                                "id": "AzQMI++npMMPijF5Qky855rGVJRUDv1BJoUIQKHvaRDU"
+                            }
+                        ], 
+                        "saleTotal": "EUR629.19", 
+                        "kind": "qpxexpress#pricingInfo", 
+                        "segmentPricing": [
+                            {
+                                "kind": "qpxexpress#segmentPricing", 
+                                "fareId": "AzQMI++npMMPijF5Qky855rGVJRUDv1BJoUIQKHvaRDU", 
+                                "freeBaggageOption": [
+                                    {
+                                        "kind": "qpxexpress#freeBaggageAllowance", 
+                                        "bagDescriptor": [
+                                            {
+                                                "count": 1, 
+                                                "subcode": "0GO", 
+                                                "kind": "qpxexpress#bagDescriptor", 
+                                                "commercialName": "UP TO 23 KG AND 158 LCM", 
+                                                "description": [
+                                                    "Up to 50 lb/23 kg", 
+                                                    "Up to 62 li/158 lcm"
+                                                ]
+                                            }, 
+                                            {
+                                                "count": 1, 
+                                                "subcode": "0D4", 
+                                                "kind": "qpxexpress#bagDescriptor", 
+                                                "commercialName": "GOLF EQUIPMENT UP TO 15 KG", 
+                                                "description": [
+                                                    "Golf Equipment", 
+                                                    "Up to 33 lb/15 kg"
+                                                ]
+                                            }, 
+                                            {
+                                                "count": 1, 
+                                                "subcode": "0DD", 
+                                                "kind": "qpxexpress#bagDescriptor", 
+                                                "commercialName": "SKI SNOW", 
+                                                "description": [
+                                                    "Ski Equipment"
+                                                ]
+                                            }, 
+                                            {
+                                                "count": 1, 
+                                                "subcode": "0D6", 
+                                                "kind": "qpxexpress#bagDescriptor", 
+                                                "commercialName": "FISHING EQUIPMENT", 
+                                                "description": [
+                                                    "Fishing Equipment"
+                                                ]
+                                            }, 
+                                            {
+                                                "count": 0, 
+                                                "subcode": "0F4", 
+                                                "kind": "qpxexpress#bagDescriptor", 
+                                                "commercialName": "STROLLER OR PUSHCHAIR", 
+                                                "description": [
+                                                    "Stroller/Pushchair"
+                                                ]
+                                            }
+                                        ], 
+                                        "pieces": 1
+                                    }
+                                ], 
+                                "segmentId": "GqYHDTxslxdUHHxR"
+                            }, 
+                            {
+                                "kind": "qpxexpress#segmentPricing", 
+                                "fareId": "AHZ4WgXqREIZELwfvbIcOL0AxqbyS6859X+dVyQV0XwY", 
+                                "freeBaggageOption": [
+                                    {
+                                        "kind": "qpxexpress#freeBaggageAllowance", 
+                                        "bagDescriptor": [
+                                            {
+                                                "count": 1, 
+                                                "subcode": "0GO", 
+                                                "kind": "qpxexpress#bagDescriptor", 
+                                                "commercialName": "UP TO 23 KG AND 158 LCM", 
+                                                "description": [
+                                                    "Up to 50 lb/23 kg", 
+                                                    "Up to 62 li/158 lcm"
+                                                ]
+                                            }, 
+                                            {
+                                                "count": 1, 
+                                                "subcode": "0D4", 
+                                                "kind": "qpxexpress#bagDescriptor", 
+                                                "commercialName": "GOLF EQUIPMENT UP TO 15 KG", 
+                                                "description": [
+                                                    "Golf Equipment", 
+                                                    "Up to 33 lb/15 kg"
+                                                ]
+                                            }, 
+                                            {
+                                                "count": 1, 
+                                                "subcode": "0DD", 
+                                                "kind": "qpxexpress#bagDescriptor", 
+                                                "commercialName": "SKI SNOW", 
+                                                "description": [
+                                                    "Ski Equipment"
+                                                ]
+                                            }, 
+                                            {
+                                                "count": 1, 
+                                                "subcode": "0D6", 
+                                                "kind": "qpxexpress#bagDescriptor", 
+                                                "commercialName": "FISHING EQUIPMENT", 
+                                                "description": [
+                                                    "Fishing Equipment"
+                                                ]
+                                            }, 
+                                            {
+                                                "count": 0, 
+                                                "subcode": "0F4", 
+                                                "kind": "qpxexpress#bagDescriptor", 
+                                                "commercialName": "STROLLER OR PUSHCHAIR", 
+                                                "description": [
+                                                    "Stroller/Pushchair"
+                                                ]
+                                            }
+                                        ], 
+                                        "pieces": 1
+                                    }
+                                ], 
+                                "segmentId": "Go4C14m+LL0-DkxA"
+                            }
+                        ], 
+                        "passengers": {
+                            "kind": "qpxexpress#passengerCounts", 
+                            "adultCount": 1
+                        }, 
+                        "ptc": "ADT", 
+                        "tax": [
+                            {
+                                "kind": "qpxexpress#taxInfo", 
+                                "code": "OY", 
+                                "country": "DE", 
+                                "salePrice": "EUR42.18", 
+                                "chargeType": "GOVERNMENT", 
+                                "id": "OY_001"
+                            }, 
+                            {
+                                "kind": "qpxexpress#taxInfo", 
+                                "code": "RA", 
+                                "country": "DE", 
+                                "salePrice": "EUR14.70", 
+                                "chargeType": "GOVERNMENT", 
+                                "id": "RA_002"
+                            }, 
+                            {
+                                "kind": "qpxexpress#taxInfo", 
+                                "code": "DE", 
+                                "country": "DE", 
+                                "salePrice": "EUR5.98", 
+                                "chargeType": "GOVERNMENT", 
+                                "id": "DE_001"
+                            }, 
+                            {
+                                "kind": "qpxexpress#taxInfo", 
+                                "code": "DY", 
+                                "country": "PE", 
+                                "salePrice": "EUR13.98", 
+                                "chargeType": "GOVERNMENT", 
+                                "id": "DY_001"
+                            }, 
+                            {
+                                "kind": "qpxexpress#taxInfo", 
+                                "code": "OG", 
+                                "country": "ES", 
+                                "salePrice": "EUR0.58", 
+                                "chargeType": "GOVERNMENT", 
+                                "id": "OG_001"
+                            }, 
+                            {
+                                "kind": "qpxexpress#taxInfo", 
+                                "code": "QV", 
+                                "country": "ES", 
+                                "salePrice": "EUR3.78", 
+                                "chargeType": "GOVERNMENT", 
+                                "id": "QV_001"
+                            }, 
+                            {
+                                "kind": "qpxexpress#taxInfo", 
+                                "code": "JD", 
+                                "country": "ES", 
+                                "salePrice": "EUR22.99", 
+                                "chargeType": "GOVERNMENT", 
+                                "id": "JD_001"
+                            }
+                        ], 
+                        "fareCalculation": "BER AB X/MAD Q47.78 M 77.36NNCOW LA LIM Q255.99 M 216.17OLESPW0R NUC 597.30 END ROE 0.878934 FARE EUR 525.00 XT 5.98DE 42.18OY 14.70RA 22.99JD 0.58OG 3.78QV 13.98DY", 
+                        "saleFareTotal": "EUR525.00", 
+                        "baseFareTotal": "EUR525.00", 
+                        "refundable": true, 
+                        "saleTaxTotal": "EUR104.19", 
+                        "latestTicketingTime": "2015-03-13T14:34-04:00"
+                    }
+                ]
+            }, 
+            {
+                "saleTotal": "EUR629.19", 
+                "kind": "qpxexpress#tripOption", 
+                "slice": [
+                    {
+                        "duration": 1760, 
+                        "kind": "qpxexpress#sliceInfo", 
+                        "segment": [
+                            {
+                                "kind": "qpxexpress#segmentInfo", 
+                                "bookingCodeCount": 9, 
+                                "flight": {
+                                    "carrier": "IB", 
+                                    "number": "3671"
+                                }, 
+                                "leg": [
+                                    {
+                                        "origin": "TXL", 
+                                        "originTerminal": "D", 
+                                        "departureTime": "2015-03-13T19:35+01:00", 
+                                        "destinationTerminal": "4", 
+                                        "destination": "MAD", 
+                                        "kind": "qpxexpress#legInfo", 
+                                        "meal": "Food and Beverages for Purchase", 
+                                        "aircraft": "32A", 
+                                        "mileage": 1150, 
+                                        "arrivalTime": "2015-03-13T22:45+01:00", 
+                                        "duration": 190, 
+                                        "operatingDisclosure": "OPERATED BY COMPANIA OPERADORA DE CORTO Y MEDIO", 
+                                        "id": "LxArP0+2XpNnJLzz"
+                                    }
+                                ], 
+                                "connectionDuration": 855, 
+                                "bookingCode": "Q", 
+                                "duration": 190, 
+                                "id": "GxgfVjN5OiCbn1Ao", 
+                                "cabin": "COACH", 
+                                "marriedSegmentGroup": "0"
+                            }, 
+                            {
+                                "kind": "qpxexpress#segmentInfo", 
+                                "bookingCodeCount": 9, 
+                                "flight": {
+                                    "carrier": "IB", 
+                                    "number": "6651"
+                                }, 
+                                "leg": [
+                                    {
+                                        "origin": "MAD", 
+                                        "originTerminal": "4S", 
+                                        "departureTime": "2015-03-14T13:00+01:00", 
+                                        "mileage": 5917, 
+                                        "destination": "LIM", 
+                                        "kind": "qpxexpress#legInfo", 
+                                        "meal": "Lunch", 
+                                        "aircraft": "342", 
+                                        "arrivalTime": "2015-03-14T18:55-05:00", 
+                                        "duration": 715, 
+                                        "id": "LsYBeaI6oZOQf6B5"
+                                    }
+                                ], 
+                                "bookingCode": "Q", 
+                                "duration": 715, 
+                                "id": "GtsuqgtdRIGO4ROe", 
+                                "cabin": "COACH", 
+                                "marriedSegmentGroup": "0"
+                            }
+                        ]
+                    }
+                ], 
+                "id": "TEBRdHZzaP9RfBDkXOlWYH001", 
+                "pricing": [
+                    {
+                        "fare": [
+                            {
+                                "origin": "BER", 
+                                "basisCode": "QOWDE", 
+                                "kind": "qpxexpress#fareInfo", 
+                                "destination": "LIM", 
+                                "carrier": "IB", 
+                                "id": "AasUkL2s7kip/mz05hNofpOsgAqIQ2gS1HG8QLQ40UodY1qTOuqjzauzfK39PsLDz6mB+K7ue2xSL6e36agBwbLTOlEO+j/"
+                            }
+                        ], 
+                        "saleTotal": "EUR629.19", 
+                        "kind": "qpxexpress#pricingInfo", 
+                        "segmentPricing": [
+                            {
+                                "kind": "qpxexpress#segmentPricing", 
+                                "fareId": "AasUkL2s7kip/mz05hNofpOsgAqIQ2gS1HG8QLQ40UodY1qTOuqjzauzfK39PsLDz6mB+K7ue2xSL6e36agBwbLTOlEO+j/", 
+                                "freeBaggageOption": [
+                                    {
+                                        "kind": "qpxexpress#freeBaggageAllowance", 
+                                        "bagDescriptor": [
+                                            {
+                                                "count": 1, 
+                                                "subcode": "0GO", 
+                                                "kind": "qpxexpress#bagDescriptor", 
+                                                "commercialName": "UP TO 23 KG AND 158 LCM", 
+                                                "description": [
+                                                    "Up to 50 lb/23 kg", 
+                                                    "Up to 62 li/158 lcm"
+                                                ]
+                                            }, 
+                                            {
+                                                "count": 1, 
+                                                "subcode": "0D4", 
+                                                "kind": "qpxexpress#bagDescriptor", 
+                                                "commercialName": "GOLF EQUIPMENT UP TO 15 KG", 
+                                                "description": [
+                                                    "Golf Equipment", 
+                                                    "Up to 33 lb/15 kg"
+                                                ]
+                                            }, 
+                                            {
+                                                "count": 1, 
+                                                "subcode": "0DD", 
+                                                "kind": "qpxexpress#bagDescriptor", 
+                                                "commercialName": "SKI SNOW", 
+                                                "description": [
+                                                    "Ski Equipment"
+                                                ]
+                                            }, 
+                                            {
+                                                "count": 1, 
+                                                "subcode": "0D6", 
+                                                "kind": "qpxexpress#bagDescriptor", 
+                                                "commercialName": "FISHING EQUIPMENT", 
+                                                "description": [
+                                                    "Fishing Equipment"
+                                                ]
+                                            }, 
+                                            {
+                                                "count": 0, 
+                                                "subcode": "0F4", 
+                                                "kind": "qpxexpress#bagDescriptor", 
+                                                "commercialName": "STROLLER OR PUSHCHAIR", 
+                                                "description": [
+                                                    "Stroller/Pushchair"
+                                                ]
+                                            }
+                                        ], 
+                                        "pieces": 1
+                                    }
+                                ], 
+                                "segmentId": "GxgfVjN5OiCbn1Ao"
+                            }, 
+                            {
+                                "kind": "qpxexpress#segmentPricing", 
+                                "fareId": "AasUkL2s7kip/mz05hNofpOsgAqIQ2gS1HG8QLQ40UodY1qTOuqjzauzfK39PsLDz6mB+K7ue2xSL6e36agBwbLTOlEO+j/", 
+                                "freeBaggageOption": [
+                                    {
+                                        "kind": "qpxexpress#freeBaggageAllowance", 
+                                        "bagDescriptor": [
+                                            {
+                                                "count": 1, 
+                                                "subcode": "0GO", 
+                                                "kind": "qpxexpress#bagDescriptor", 
+                                                "commercialName": "UP TO 23 KG AND 158 LCM", 
+                                                "description": [
+                                                    "Up to 50 lb/23 kg", 
+                                                    "Up to 62 li/158 lcm"
+                                                ]
+                                            }, 
+                                            {
+                                                "count": 1, 
+                                                "subcode": "0D4", 
+                                                "kind": "qpxexpress#bagDescriptor", 
+                                                "commercialName": "GOLF EQUIPMENT UP TO 15 KG", 
+                                                "description": [
+                                                    "Golf Equipment", 
+                                                    "Up to 33 lb/15 kg"
+                                                ]
+                                            }, 
+                                            {
+                                                "count": 1, 
+                                                "subcode": "0DD", 
+                                                "kind": "qpxexpress#bagDescriptor", 
+                                                "commercialName": "SKI SNOW", 
+                                                "description": [
+                                                    "Ski Equipment"
+                                                ]
+                                            }, 
+                                            {
+                                                "count": 1, 
+                                                "subcode": "0D6", 
+                                                "kind": "qpxexpress#bagDescriptor", 
+                                                "commercialName": "FISHING EQUIPMENT", 
+                                                "description": [
+                                                    "Fishing Equipment"
+                                                ]
+                                            }, 
+                                            {
+                                                "count": 0, 
+                                                "subcode": "0F4", 
+                                                "kind": "qpxexpress#bagDescriptor", 
+                                                "commercialName": "STROLLER OR PUSHCHAIR", 
+                                                "description": [
+                                                    "Stroller/Pushchair"
+                                                ]
+                                            }
+                                        ], 
+                                        "pieces": 1
+                                    }
+                                ], 
+                                "segmentId": "GtsuqgtdRIGO4ROe"
+                            }
+                        ], 
+                        "passengers": {
+                            "kind": "qpxexpress#passengerCounts", 
+                            "adultCount": 1
+                        }, 
+                        "ptc": "ADT", 
+                        "tax": [
+                            {
+                                "kind": "qpxexpress#taxInfo", 
+                                "code": "JD", 
+                                "country": "ES", 
+                                "salePrice": "EUR22.99", 
+                                "chargeType": "GOVERNMENT", 
+                                "id": "JD_001"
+                            }, 
+                            {
+                                "kind": "qpxexpress#taxInfo", 
+                                "code": "QV", 
+                                "country": "ES", 
+                                "salePrice": "EUR3.78", 
+                                "chargeType": "GOVERNMENT", 
+                                "id": "QV_001"
+                            }, 
+                            {
+                                "kind": "qpxexpress#taxInfo", 
+                                "code": "OG", 
+                                "country": "ES", 
+                                "salePrice": "EUR0.58", 
+                                "chargeType": "GOVERNMENT", 
+                                "id": "OG_001"
+                            }, 
+                            {
+                                "kind": "qpxexpress#taxInfo", 
+                                "code": "DY", 
+                                "country": "PE", 
+                                "salePrice": "EUR13.98", 
+                                "chargeType": "GOVERNMENT", 
+                                "id": "DY_001"
+                            }, 
+                            {
+                                "kind": "qpxexpress#taxInfo", 
+                                "code": "YQ", 
+                                "id": "YQ", 
+                                "chargeType": "CARRIER_SURCHARGE", 
+                                "salePrice": "EUR205.00"
+                            }, 
+                            {
+                                "kind": "qpxexpress#taxInfo", 
+                                "code": "DE", 
+                                "country": "DE", 
+                                "salePrice": "EUR5.98", 
+                                "chargeType": "GOVERNMENT", 
+                                "id": "DE_001"
+                            }, 
+                            {
+                                "kind": "qpxexpress#taxInfo", 
+                                "code": "RA", 
+                                "country": "DE", 
+                                "salePrice": "EUR14.70", 
+                                "chargeType": "GOVERNMENT", 
+                                "id": "RA_002"
+                            }, 
+                            {
+                                "kind": "qpxexpress#taxInfo", 
+                                "code": "OY", 
+                                "country": "DE", 
+                                "salePrice": "EUR42.18", 
+                                "chargeType": "GOVERNMENT", 
+                                "id": "OY_001"
+                            }
+                        ], 
+                        "fareCalculation": "BER IB X/MAD IB LIM 364.07QOWDE NUC 364.07 END ROE 0.878934 FARE EUR 320.00 XT 5.98DE 42.18OY 14.70RA 22.99JD 0.58OG 3.78QV 13.98DY 205.00YQ", 
+                        "saleFareTotal": "EUR320.00", 
+                        "baseFareTotal": "EUR320.00", 
+                        "saleTaxTotal": "EUR309.19", 
+                        "latestTicketingTime": "2015-03-13T14:34-04:00"
+                    }
+                ]
+            }
+        ], 
+        "kind": "qpxexpress#tripOptions", 
+        "data": {
+            "city": [
+                {
+                    "kind": "qpxexpress#cityData", 
+                    "code": "BER", 
+                    "name": "Berlin"
+                }, 
+                {
+                    "kind": "qpxexpress#cityData", 
+                    "code": "LIM", 
+                    "name": "Lima"
+                }, 
+                {
+                    "kind": "qpxexpress#cityData", 
+                    "code": "MAD", 
+                    "name": "Madrid"
+                }
+            ], 
+            "kind": "qpxexpress#data", 
+            "tax": [
+                {
+                    "kind": "qpxexpress#taxData", 
+                    "id": "RA_002", 
+                    "name": "German Passenger Service Charge"
+                }, 
+                {
+                    "kind": "qpxexpress#taxData", 
+                    "id": "OY_001", 
+                    "name": "German Air Transport Tax"
+                }, 
+                {
+                    "kind": "qpxexpress#taxData", 
+                    "id": "JD_001", 
+                    "name": "Spanish Airport Services Charge"
+                }, 
+                {
+                    "kind": "qpxexpress#taxData", 
+                    "id": "DY_001", 
+                    "name": "Peru Int'l Arrival Tax"
+                }, 
+                {
+                    "kind": "qpxexpress#taxData", 
+                    "id": "QV_001", 
+                    "name": "Spanish Security Tax"
+                }, 
+                {
+                    "kind": "qpxexpress#taxData", 
+                    "id": "DE_001", 
+                    "name": "German Airport Security Tax"
+                }, 
+                {
+                    "kind": "qpxexpress#taxData", 
+                    "id": "OG_001", 
+                    "name": "Spanish Aviation Safety and Security Fee"
+                }, 
+                {
+                    "kind": "qpxexpress#taxData", 
+                    "id": "YQ", 
+                    "name": "IB YQ surcharge"
+                }
+            ], 
+            "airport": [
+                {
+                    "city": "LIM", 
+                    "kind": "qpxexpress#airportData", 
+                    "code": "LIM", 
+                    "name": "Lima J. Chavez"
+                }, 
+                {
+                    "city": "MAD", 
+                    "kind": "qpxexpress#airportData", 
+                    "code": "MAD", 
+                    "name": "Madrid Adolfo Suarez-Barajas"
+                }, 
+                {
+                    "city": "BER", 
+                    "kind": "qpxexpress#airportData", 
+                    "code": "TXL", 
+                    "name": "Berlin Tegel"
+                }
+            ], 
+            "aircraft": [
+                {
+                    "kind": "qpxexpress#aircraftData", 
+                    "code": "32A", 
+                    "name": "Airbus A320"
+                }, 
+                {
+                    "kind": "qpxexpress#aircraftData", 
+                    "code": "32S", 
+                    "name": "Airbus A320"
+                }, 
+                {
+                    "kind": "qpxexpress#aircraftData", 
+                    "code": "342", 
+                    "name": "Airbus A340"
+                }, 
+                {
+                    "kind": "qpxexpress#aircraftData", 
+                    "code": "343", 
+                    "name": "Airbus A340"
+                }
+            ], 
+            "carrier": [
+                {
+                    "kind": "qpxexpress#carrierData", 
+                    "code": "AB", 
+                    "name": "Air Berlin PLC & Co. Luftverkehrs KG"
+                }, 
+                {
+                    "kind": "qpxexpress#carrierData", 
+                    "code": "IB", 
+                    "name": "Iberia Lineas Aereas de Espana S.A."
+                }, 
+                {
+                    "kind": "qpxexpress#carrierData", 
+                    "code": "LA", 
+                    "name": "LAN Airlines"
+                }
+            ]
+        }, 
+        "requestId": "x2AjGO9ZDypBhqMxM0LkJc"
+    }
+}

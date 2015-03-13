@@ -1,2 +1,2 @@
-/home/pi/rpi-scripts/hum_module/dht11km.ko
-/home/pi/rpi-scripts/hum_module/dht11km.o
+/home/pi/rpi-scripts/humidity/module/dht11km.ko
+/home/pi/rpi-scripts/humidity/module/dht11km.o

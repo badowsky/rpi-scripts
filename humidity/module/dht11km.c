@@ -377,7 +377,7 @@ static int __init dht11_init(void)
     result = register_chrdev(driverno, DRIVER_NAME, &fops);
 
 	if (result < 0) {
-	  printk(KERN_ALERT DRIVER_NAME "Registering dht11 driver failed with %d\n", result);
+	  printk(KERN_ALERT DRIVER_NAME ": Registering dht11 driver failed with %d\n", result);
 	  return result;
 	}
 

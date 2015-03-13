@@ -2,15 +2,14 @@
 import logging
 import subprocess
 import re
+from MsgParserConfig import COMMANDS_MAP
 
 logger = logging.getLogger(__name__)
 
 class MsgParser:
 
     def __init__(self):
-        self.commands_map = {"temp": "python3 /home/pi/rpi-scripts/temp/read_temp.py",
-                             "all": "python /home/pi/rpi-scripts/read_measurements.py",
-                             "reboot": "/usr/bin/sudo /sbin/shutdown -r now"}
+        self.commands_map = COMMANDS_MAP
         logger.info("Parser created.")
 
     def process(self, msg):
